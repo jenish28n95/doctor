@@ -44,6 +44,10 @@ use App\Models\Childrtype;
    .accordion-item.active .accordion-arrow {
       transform: rotate(180deg);
    }
+
+   .remove-bottom-space {
+      margin-bottom: 0px;
+   }
 </style>
 @endsection
 @section('content')
@@ -120,7 +124,7 @@ $ids[] = $emp->id;
                                  <select name="doctors_id" id="doctors_id" class="custom-select form-control form-control-rounded" required>
                                     <option value="">Select Doctor</option>
                                     @foreach($doctors as $doctor)
-                                    <option value="{{$doctor->id}}" {{ $patient->doctors_id == $doctor->id ? 'selected' : '' }}>{{$doctor->name}}</option>
+                                    <option value="{{$doctor->id}}" {{ $patient->doctors_id == $doctor->id ? 'selected' : '' }}>{{$doctor->name}}{{isset($doctor->degree) ? '-'.$doctor->degree : ''}}</option>
                                     @endforeach
                                  </select>
                                  @if($errors->has('doctors_id'))
@@ -210,6 +214,15 @@ $ids[] = $emp->id;
                                  @endif
                               </div>
                            </div>
+                           <!-- <div class="form-group">
+                              <label for="created_at" class="col-sm-3 control-label">Patient Created Date</label>
+                              <div class="col-sm-9">
+                                 <input type="date" name="created_at" id="created_at" class="form-control border border-dark mb-2" placeholder="Enter date" value="{{$patient->created_at}}" required>
+                                 @if($errors->has('created_at'))
+                                 <div class="error text-danger">{{ $errors->first('created_at') }}</div>
+                                 @endif
+                              </div>
+                           </div> -->
                         </div>
                         <!--/.col (left) -->
 
@@ -297,7 +310,7 @@ $ids[] = $emp->id;
                      <button id="editor_button_{{$emp->id}}" data-value="{{$emp->id}}" onclick="openModaledit('{{$emp->id}}')">Editor</button>
                   </td>
                   <td>
-                     <a href="{{$emp->file}}" target="_blank">PDF</a>
+                     <a href="{{$emp->file}}" target="_blank"><i class="fa fa-file-pdf-o" style="font-size:22px;color:red"></i></a>
                   </td>
                   <td>
                      {{$emp->amount}}
@@ -319,7 +332,7 @@ $ids[] = $emp->id;
                   <td>
                      <div class="row">
                         <div class="col-md-2">
-                           <div class="form-group mb-0">
+                           <div class="form-group remove-bottom-space">
                               <input type="number" class="form-control" name="basic_amount" id="basic_amount" oninput="calculateNetAmount()" value="{{$patient->basic_amount}}">
                            </div>
                         </div>
@@ -336,7 +349,7 @@ $ids[] = $emp->id;
                   <td>
                      <div class="row">
                         <div class="col-md-2">
-                           <div class="form-group mb-0">
+                           <div class="form-group remove-bottom-space">
                               <select name="discount_type" id="discount_type" class="custom-select form-control form-control-rounded" oninput="calculateNetAmount()" required>
                                  <option value="per" {{$patient->discount_type == 'per' ? 'selected' : ''}}>%</option>
                                  <option value="fix" {{$patient->discount_type == 'fix' ? 'selected' : ''}}>Fix</option>
@@ -344,7 +357,7 @@ $ids[] = $emp->id;
                            </div>
                         </div>
                         <div class="col-md-2">
-                           <div class="form-group">
+                           <div class="form-group remove-bottom-space">
                               <input type="number" class="form-control" name="discount" id="discount" value="{{$patient->discount}}" oninput="calculateNetAmount()">
                            </div>
                         </div>
@@ -363,7 +376,7 @@ $ids[] = $emp->id;
                      $comm = isset($wallet) ? $wallet->comm_amount : 0;  ?>
                      <div class="row">
                         <div class="col-md-2">
-                           <div class="form-group">
+                           <div class="form-group remove-bottom-space">
                               <input type="number" class="form-control" name="doctor_comm" id="doctor_comm" value="{{isset($comm) ? $comm : ''}}">
                            </div>
                         </div>
@@ -380,7 +393,7 @@ $ids[] = $emp->id;
                   <td>
                      <div class="row">
                         <div class="col-md-2">
-                           <div class="form-group">
+                           <div class="form-group remove-bottom-space">
                               <input type="number" class="form-control" name="net_amount" id="net_amount" value="{{$patient->net_amount}}">
                            </div>
                         </div>
@@ -397,7 +410,7 @@ $ids[] = $emp->id;
                   <td style="padding:5px;">
                      <div class="row">
                         <div class="col-md-3">
-                           <div class="form-group">
+                           <div class="form-group remove-bottom-space">
                               <span>payment method</span>
                               <select name="payment_mode" id="payment_mode" class="custom-select form-control form-control-rounded" onchange="togglePaymentFields()">
                                  <option value="cash" {{ $patient->payment_mode == 'done' ? 'selected' : '' }}>Cash</option>
@@ -407,13 +420,13 @@ $ids[] = $emp->id;
                            </div>
                         </div>
                         <div class="col-md-3" id="cash" style="margin-left:10px;">
-                           <div class="form-group">
+                           <div class="form-group remove-bottom-space">
                               <span>Enter cash amount</span>
                               <input type="number" class="form-control" name="cash_amount" id="cash_amount" placeholder="cash" value="{{$patient->cash_amount}}" oninput="updateBalance()">
                            </div>
                         </div>
                         <div class="col-md-3" id="paytm" style="margin-left:10px;display:none;">
-                           <div class="form-group">
+                           <div class="form-group remove-bottom-space">
                               <span>Enter paytm amount</span>
                               <input type="number" class="form-control" name="paytm_amount" id="paytm_amount" placeholder="paytm" value="{{$patient->paytm_amount}}" oninput="updateBalance()">
                            </div>
@@ -431,7 +444,7 @@ $ids[] = $emp->id;
                   <td style="padding:5px;">
                      <div class="row">
                         <div class="col-md-2">
-                           <div class="form-group">
+                           <div class="form-group remove-bottom-space">
                               <input type="number" class="form-control" name="balance" id="balance" value="{{$patient->balance}}">
                            </div>
                         </div>
@@ -471,7 +484,7 @@ $ids[] = $emp->id;
             {!! Form::hidden('report_id', null, ['id' => 'modal_report_id']) !!}
             {!! Form::hidden('patients_id', $patient->id, ['id' => 'modal_patients_id']) !!}
             {!! Form::hidden('amount', $patient->id, ['id' => 'modal_amount_id']) !!}
-
+            {!! Form::hidden('created_at', $patient->id, ['id' => 'modal_patients_created']) !!}
 
             <textarea id="editContent" class="ckeditor" name="editContent"></textarea>
 
@@ -523,18 +536,19 @@ $ids[] = $emp->id;
 
 @section('script')
 
-<script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
-<!-- <script src="{{asset('js/ckeditor.js')}}"></script> -->
+<!-- <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script> -->
+<script src="{{asset('js/ckeditor/ckeditor.js')}}"></script>
 
 <script>
    CKEDITOR.replace('editContent', {
-      height: '400px', // Set the height here
+      height: '450px',
+      width: '100%',
       on: {
          instanceReady: function(event) {
             event.editor.on('key', function(event) {
                if (event.data.keyCode === 13) { // Check if Enter key is pressed
                   var editorContent = event.editor.getData();
-                  var atIndex = editorContent.lastIndexOf('#');
+                  var atIndex = editorContent.lastIndexOf('^');
                   if (atIndex !== -1) {
                      // var searchTerm = editorContent.substring(atIndex + 1).trim();
                      var searchTerm = editorContent.substring(atIndex + 1, atIndex + 5).trim();
@@ -571,7 +585,7 @@ $ids[] = $emp->id;
    function replaceTextWithSuggestion(value) {
       var editor = CKEDITOR.instances.editContent;
       var editorContent = editor.getData();
-      var atIndex = editorContent.lastIndexOf('#');
+      var atIndex = editorContent.lastIndexOf('^');
       var newText = editorContent.substring(0, atIndex) + value + editorContent.substring(atIndex + 5);
       editor.setData(newText);
    }
@@ -594,16 +608,16 @@ $ids[] = $emp->id;
    }
 
    var editorIds = @json(array_unique($ids));
-   // var editorIds = [39, 40]; // Add more editor IDs as needed
    editorIds.forEach(function(editorId) {
       CKEDITOR.replace('editorContainer_' + editorId, {
-         height: '400px',
+         height: '450px',
+         width: '100%',
          on: {
             instanceReady: function(event) {
                event.editor.on('key', function(event) {
                   if (event.data.keyCode === 13) { // Check if Enter key is pressed
                      var editorContent = event.editor.getData();
-                     var atIndex = editorContent.lastIndexOf('#');
+                     var atIndex = editorContent.lastIndexOf('^');
                      if (atIndex !== -1) {
                         var searchTerm = editorContent.substring(atIndex + 1, atIndex + 5).trim();
                         searchTerm = searchTerm.replace(/<\/?[^>]+(>|$)/g, "");
@@ -642,7 +656,7 @@ $ids[] = $emp->id;
    function replaceTextWithSuggestionDynamic(value, editorId) {
       var editor = CKEDITOR.instances['editorContainer_' + editorId]; // Dynamically construct the CKEditor instance ID
       var editorContent = editor.getData();
-      var atIndex = editorContent.lastIndexOf('#');
+      var atIndex = editorContent.lastIndexOf('^');
       var newText = editorContent.substring(0, atIndex) + value + editorContent.substring(atIndex + 5);
       editor.setData(newText);
    }
@@ -757,6 +771,7 @@ $ids[] = $emp->id;
          $('#modal_report_id').val(report_id);
          $('#modal_patients_id').val(<?= $patient->id; ?>);
          $('#modal_amount_id').val(report_amount);
+         $('#modal_patients_created').val('<?= $patient->created_at; ?>');
 
          if (selected_file) {
             $.ajax({
@@ -775,7 +790,6 @@ $ids[] = $emp->id;
                   } else {
                      console.log('Content retrieved successfully:', response.content);
                      // CKEDITOR.instances.editContent.setData(response.content);
-
                      openModaladd(response.content);
                   }
                },

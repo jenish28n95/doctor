@@ -204,6 +204,22 @@ class AdminPatientsController extends Controller
     public function destroy($id)
     {
         $patient = Patient::findOrFail($id);
+
+        $reports = Patientreport::where('patients_id', $patient->id)->get();
+        foreach ($reports as $report) {
+            if ($report->file != '/patientsdocs/') {
+                if (file_exists(public_path() . $report->file)) {
+                    unlink(public_path() . $report->file);
+                }
+            }
+            $report->delete();
+        }
+
+        $commission = Wallet::where('patients_id', $patient->id)->first();
+        if (isset($commission)) {
+            $commission->delete();
+        }
+
         $patient->delete();
         return Redirect::back()->with('success', "Delete Record Successfully");
     }
@@ -214,6 +230,15 @@ class AdminPatientsController extends Controller
         $f_year = Session::get('setfinancialyear');
 
         $htmlContent  = $request->editContent;
+
+        // dd($htmlContent);
+
+        $htmlContent = '<div style="width: 90%; margin: 15% auto 0 auto;">' . $htmlContent . '</div>';
+        $htmlContent = str_replace('margin-left: 3in', 'margin-left: 2in', $htmlContent);
+        // $htmlContent = str_replace('border-left-style: double;', 'border-left-style: double;width:20%;', $htmlContent);
+        // $htmlContent = str_replace('border-right-style: double;', 'border-right-style: double;width:15%;', $htmlContent);
+
+        // dd($htmlContent);
 
         $options = new Options();
         $options->set('isPhpEnabled', true);
@@ -229,7 +254,7 @@ class AdminPatientsController extends Controller
         $rtypes = Rtype::where('id', $request->report_id)->first();
 
         // Generate PDF file name
-        $pdfFileName = str_replace(' ', '-', $patient->name) . '-' . str_replace(' ', '-', $rtypes->name) . '-' . Carbon::today()->format('Ymd') . ".pdf";
+        $pdfFileName = str_replace(' ', '-', $patient->name) . '-' . str_replace(' ', '-', $rtypes->name) . '-' . Carbon::today()->format('Ymd') . '-' . time() . ".pdf";
 
         // Save the PDF content to a file
         $pdfFilePath = public_path('patientsdocs/' . $pdfFileName);
@@ -242,6 +267,7 @@ class AdminPatientsController extends Controller
         $data->amount = $request->amount;
         $data->file = $pdfFileName;
         $data->report_content = $htmlContent;
+        $data->created_at = $request->created_at;
         $data->save();
 
         $total = 0;
@@ -336,33 +362,6 @@ class AdminPatientsController extends Controller
         $patient->save();
 
         return redirect()->back()->with('success', "Update Record Successfully");
-    }
-
-    public function getWordContent(Request $request)
-    {
-        $pdfFileName = 'Admin-SONOGRAPHY-20240409.pdf';
-
-        $pdfPath = public_path('patientsdocs' . DIRECTORY_SEPARATOR . $pdfFileName);
-
-        // $pdfPath = storage_path('app/pdf/sample.pdf');
-        $text = \Spatie\PdfToText\Pdf::getText($pdfPath);
-
-        // Save the text content to a Word file
-        $wordPath = storage_path('app' . DIRECTORY_SEPARATOR . 'word' . DIRECTORY_SEPARATOR . 'sample.docx');
-        file_put_contents($wordPath, $text);
-
-        // $pdfFilePath = public_path('patientsdocs/' . $pdfFileName);
-        // $wordPath = public_path()('app/word/sample.docx');
-        // $phpWord = IOFactory::load($wordPath);
-        // $content = '';
-
-        // foreach ($phpWord->getSections() as $section) {
-        //     foreach ($section->getElements() as $element) {
-        //         $content .= $element->getText() . ' ';
-        //     }
-        // }
-
-        return response()->json(['content' => $text]);
     }
 
     public function destroyPatientReport($id)
@@ -491,8 +490,6 @@ class AdminPatientsController extends Controller
 
     public function updateReportContent(Request $request)
     {
-
-        // dd($request->all());
         $patientreport = Patientreport::findOrFail($request->patientreportid);
         $patient = Patient::where('id', $patientreport->patients_id)->first();
 
@@ -503,6 +500,11 @@ class AdminPatientsController extends Controller
         }
 
         $htmlContent  = $request->report_content;
+
+        $htmlContent = '<div style="width: 90%; margin: 15% auto 0 auto;">' . $htmlContent . '</div>';
+        $htmlContent = str_replace('margin-left: 3in', 'margin-left: 2in', $htmlContent);
+        // $htmlContent = str_replace('<table', '<table style="border-collapse: collapse; border-spacing: 0; padding: 0px;width:100%;"', $htmlContent);
+        // $htmlContent = str_replace('<td style="', '<td style="border: 1px solid #000; padding: 0;"', $htmlContent);
 
         $options = new Options();
         $options->set('isPhpEnabled', true);
@@ -518,7 +520,7 @@ class AdminPatientsController extends Controller
         $rtypes = Rtype::where('id', $patientreport->report_id)->first();
 
         // Generate PDF file name
-        $pdfFileName = str_replace(' ', '-', $patient->name) . '-' . str_replace(' ', '-', $rtypes->name) . '-' . Carbon::today()->format('Ymd') . ".pdf";
+        $pdfFileName = str_replace(' ', '-', $patient->name) . '-' . str_replace(' ', '-', $rtypes->name) . '-' . Carbon::today()->format('Ymd') . '-' . time() . ".pdf";
 
         // Save the PDF content to a file
         $pdfFilePath = public_path('patientsdocs/' . $pdfFileName);
@@ -707,7 +709,7 @@ class AdminPatientsController extends Controller
 
             foreach ($filesInFolder as $path) {
                 $files = pathinfo($path);
-                if ($files['extension'] === 'docx') {
+                if ($files['extension'] === 'docx' || $files['extension'] === 'doc') {
                     $docxFiles[] = $files;
                 }
             }
@@ -740,30 +742,39 @@ class AdminPatientsController extends Controller
 
             // Read HTML content
             $content = file_get_contents($htmlFilePath);
-            // dd($content);
 
             // Clean up temporary HTML file
             unlink($htmlFilePath);
 
             $pname = $patient->name;
             $age = $patient->age . ' ' . $patient->year . '/ ' . ($patient->sex == 'male' ? 'M' : 'F');
-            $doctorname = 'DR.' . $doctor->name;
+            $doctorname = 'DR.' . $doctor->name . '-' . $doctor->degree;
             $formatted_date = Carbon::createFromFormat('Y-m-d H:i:s', $patient->created_at);
             $date = $formatted_date->format('d/m/Y');
 
             $content = str_replace("PHPWord", " ", $content);
-            // $content = str_replace('<table style="table-layout: auto; border-top-style: double; border-top-width: 0.3pt; border-left-style: double; border-left-width: 0.3pt; border-bottom-style: double; border-bottom-width: 0.3pt; border-right-style: double; border-right-width: 0.3pt;">', '<br/><br/><br/><br/><table style="table-layout: auto; border-top-style: double; border-top-width: 0.3pt; border-left-style: double; border-left-width: 0.3pt; border-bottom-style: double; border-bottom-width: 0.3pt; border-right-style: double; border-right-width: 0.3pt;width: 100%;">', $content);
-            // $content = str_replace('</head>', '<style>table { width:100%; }</style></head>', $content);
-            $content = str_replace('<table class="3">', '<table class="3" style="margin-top:200px;width:100%">', $content);
-            $content = str_replace('<table class="4">', '<table class="4" style="margin-top:200px;width:100%">', $content);
-            $content = str_replace('<table class="5">', '<table class="5" style="margin-top:200px;width:100%">', $content);
-            $content = str_replace('border-right-width: 0.3pt;', 'border-right-width: 0.3pt; padding: 5px;', $content);
-            $content = str_replace("{patname}", $pname, $content);
-            $content = str_replace("{patage}", $age, $content);
-            $content = str_replace("{refdoctor}", $doctorname, $content);
-            $content = str_replace("{pat-date}", $date, $content);
+            $content = str_replace("{patname}", '&nbsp;' . $pname, $content);
+            $content = str_replace("{patage}", '&nbsp;' . $age, $content);
+            $content = str_replace("{refdoctor}", '&nbsp;' . $doctorname, $content);
+            $content = str_replace("{pat-date}", '&nbsp;' . $date, $content);
             $content = preg_replace('/<p>&nbsp;<\/p>/', '', $content);
+            $content = str_replace('bgcolor="#auto"', '', $content);
+            $content = str_replace('margin-left: 3in', 'margin-left: 0in', $content);
+            $content = str_replace('margin-left: 1134in', 'margin-left: 3in', $content);
+            $content = str_replace('margin-left: 1440in', 'margin-left: 3in', $content);
+            $content = str_replace('margin-left: 1080in', 'margin-left: 3in', $content);
+            $content = str_replace('margin-left: 1620in', 'margin-left: 3in', $content);
+            $content = str_replace('margin-left: 540in', 'margin-left: 3in', $content);
+            $content = str_replace('margin-left: 720in', 'margin-left: 3in', $content);
+            $content = str_replace('margin-left: 180in', 'margin-left: 3in', $content);
+            $content = str_replace('margin-left: 360in', 'margin-left: 3in', $content);
+            $content = str_replace('margin-left: 1800in', 'margin-left: 3in', $content);
+
+            // $content = str_replace('<p style="text-align: justify;"><span style="font-weight: bold;">', '<span style="font-weight: bold;">', $content);
+            // $content = str_replace('<p style="text-align: justify;"><span style=', '<span style=', $content);
+            // $content = str_replace('<p style="text-align: justify;">', '', $content);
             $content = preg_replace('/<\/p>/', '', $content);
+            // $content = str_replace("<div style='page: page1'>", "\n<p></p>\n<p></p>\n<p></p>\n<p></p>\n<div style='page: page1'>", $content);
             // $content = trim($content);
 
             return response()->json(['content' => $content]);
@@ -776,6 +787,10 @@ class AdminPatientsController extends Controller
     {
         $f_year = Session::get('setfinancialyear');
         $selectedIds = $request->input('ids');
+
+        if (empty($selectedIds)) {
+            return redirect()->back()->with('error', "please select patient for slip");
+        }
 
         $patients = Patient::whereIn('id', explode(',', $selectedIds))->orderBy('id', 'ASC')->get();
 
@@ -793,35 +808,36 @@ class AdminPatientsController extends Controller
         $filesToDownload = [];
 
         foreach ($patients as $patient) {
-            $patientreports = Patientreport::where('patients_id', $patient->id)->get();
+            if ($patient->is_slip == 0) {
+                $patientreports = Patientreport::where('patients_id', $patient->id)->get();
 
-            if (!isset($patientreports)) {
-                continue;
-            }
+                if (!isset($patientreports)) {
+                    continue;
+                }
 
-            $pdf = PDF::loadView('admin.patients.slipe', compact('patient', 'patientreports', 'no'));
+                $pdf = PDF::loadView('admin.patients.slipe', compact('patient', 'patientreports', 'no'));
 
-            if (!$patient->created_at->startOfDay()->equalTo(Carbon::today())) {
+                if (!$patient->created_at->startOfDay()->equalTo(Carbon::today())) {
 
-                $get_slip = Slip::whereDate('date', $patient->created_at)->where('f_year', $patient->f_year)->first();
+                    // $fileName = $no . '-' . str_replace(' ', '-', $patient->name) . '.pdf';
+                    // $pdf->save(public_path('slipe/') . $fileName);
+                    // $fileNames[] = $fileName;
 
-                if (isset($get_slip)) {
+                    // $filePath = public_path('slipe/') . $fileName;
+                    // $filesToDownload[] = $filePath;
 
-                    $fileName = $get_slip->sr_no . '-' . str_replace(' ', '-', $patient->name) . '.pdf';
-                    $pdf->save(public_path('slipe/') . $fileName);
-                    $fileNames[] = $fileName;
+                    // $slip = new Slip;
+                    // $slip->patients_id = $patient->id;
+                    // $slip->sr_no = $no;
+                    // $slip->date = $patient->created_at;
+                    // $slip->file = $fileName;
+                    // $slip->f_year = $f_year;
+                    // $slip->save();
 
-                    $filePath = public_path('slipe/') . $fileName;
-                    $filesToDownload[] = $filePath;
+                    // Patient::where('id', $patient->id)->update(['is_slip' => 1]);
 
-                    Patient::where('id', $get_slip->patients_id)->update(['is_slip' => 0]);
-
-                    if (file_exists(public_path('slipe/') . $get_slip->file)) {
-                        unlink(public_path('slipe/') . $get_slip->file);
-                    }
-
-                    Slip::where('id', $get_slip->id)
-                        ->update(['file' => $fileName, 'patients_id' => $patient->id]);
+                    // $no++;
+                    // $no = str_pad($no, 4, '0', STR_PAD_LEFT);
                 } else {
 
                     $fileName = $no . '-' . str_replace(' ', '-', $patient->name) . '.pdf';
@@ -838,74 +854,36 @@ class AdminPatientsController extends Controller
                     $slip->file = $fileName;
                     $slip->f_year = $f_year;
                     $slip->save();
+
+                    Patient::where('id', $patient->id)->update(['is_slip' => 1]);
+
+                    $no++;
+                    $no = str_pad($no, 4, '0', STR_PAD_LEFT);
                 }
             } else {
-
-                $fileName = $no . '-' . str_replace(' ', '-', $patient->name) . '.pdf';
-                $pdf->save(public_path('slipe/') . $fileName);
-                $fileNames[] = $fileName;
-
-                $filePath = public_path('slipe/') . $fileName;
-                $filesToDownload[] = $filePath;
-
-                $slip = new Slip;
-                $slip->patients_id = $patient->id;
-                $slip->sr_no = $no;
-                $slip->date = $patient->created_at;
-                $slip->file = $fileName;
-                $slip->f_year = $f_year;
-                $slip->save();
+                continue;
             }
-
-            Patient::where('id', $patient->id)->update(['is_slip' => 1]);
-
-            $no++;
-            $no = str_pad($no, 4, '0', STR_PAD_LEFT);
         }
 
         if (!empty($filesToDownload)) {
-            $toda = Carbon::today()->format('Ymd');
-            // Create a temporary zip file
-            $zipFilePath = public_path($toda . '-slips.zip');
-            $zip = new ZipArchive();
-            if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
-                foreach ($filesToDownload as $file) {
-                    // Add each file to the zip archive
-                    $zip->addFile($file, basename($file));
-                }
-                $zip->close();
+            // $toda = Carbon::today()->format('Ymd');
 
-                // Download the zip file
-                return response()->download($zipFilePath)->deleteFileAfterSend(true);
-            } else {
-                // If zip creation fails, redirect back with an error message
-                return redirect()->back()->with('error', "Failed to create zip file");
-            }
+            // $zipFilePath = public_path($toda . '-slips.zip');
+            // $zip = new ZipArchive();
+            // if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+            //     foreach ($filesToDownload as $file) {
+            //         // Add each file to the zip archive
+            //         $zip->addFile($file, basename($file));
+            //     }
+            //     $zip->close();
+
+            //     return response()->download($zipFilePath)->deleteFileAfterSend(true);
+            // } else {
+            //     // If zip creation fails, redirect back with an error message
+            //     return redirect()->back()->with('error', "Failed to create zip file");
+            // }
         }
 
         return redirect()->back()->with('success', "Slip Download succesfully");
     }
-
-    // public function download(Request $request)
-    // {
-    //     $selectedIds = $request->input('ids');
-
-    //     $data = Patient::whereIn('id', explode(',', $selectedIds))->get();
-
-    //     $csvData = $this->formatDataAsCsv($data);
-
-    //     return response()->streamDownload(function () use ($csvData) {
-    //         echo $csvData;
-    //     }, 'selected_data.csv');
-    // }
-
-    // private function formatDataAsCsv($data)
-    // {
-    //     // Format data as CSV string (example)
-    //     $csv = "";
-    //     foreach ($data as $item) {
-    //         $csv .= $item->id . ',' . $item->name . ',' . $item->mobile . "\n";
-    //     }
-    //     return $csv;
-    // }
 }

@@ -6,16 +6,16 @@ if (!function_exists('numberToWords')) {
   {
     // Array to represent the number words from 0 to 19
     $wordsArray = [
-      0 => 'zero', 1 => 'one', 2 => 'two', 3 => 'three', 4 => 'four',
-      5 => 'five', 6 => 'six', 7 => 'seven', 8 => 'eight', 9 => 'nine',
-      10 => 'ten', 11 => 'eleven', 12 => 'twelve', 13 => 'thirteen', 14 => 'fourteen',
-      15 => 'fifteen', 16 => 'sixteen', 17 => 'seventeen', 18 => 'eighteen', 19 => 'nineteen'
+      0 => 'zero', 1 => 'One', 2 => 'Two', 3 => 'Three', 4 => 'Four',
+      5 => 'Five', 6 => 'Six', 7 => 'Seven', 8 => 'Eight', 9 => 'Nine',
+      10 => 'Ten', 11 => 'Eleven', 12 => 'Twelve', 13 => 'Thirteen', 14 => 'Fourteen',
+      15 => 'Fifteen', 16 => 'Sixteen', 17 => 'Seventeen', 18 => 'Eighteen', 19 => 'Nineteen'
     ];
 
     // Array to represent the number words for multiples of 10
     $tensArray = [
-      20 => 'twenty', 30 => 'thirty', 40 => 'forty', 50 => 'fifty',
-      60 => 'sixty', 70 => 'seventy', 80 => 'eighty', 90 => 'ninety'
+      20 => 'Twenty', 30 => 'Thirty', 40 => 'Forty', 50 => 'Fifty',
+      60 => 'Sixty', 70 => 'Seventy', 80 => 'Eighty', 90 => 'Ninety'
     ];
 
     if ($number < 20) {
@@ -27,7 +27,13 @@ if (!function_exists('numberToWords')) {
     }
 
     if ($number < 1000) {
-      return $wordsArray[floor($number / 100)] . ' hundred' . (($number % 100 !== 0) ? ' and ' . numberToWords($number % 100) : '');
+      return $wordsArray[floor($number / 100)] . ' Hundred' . (($number % 100 !== 0) ? ' and ' . numberToWords($number % 100) : '');
+    }
+
+    if ($number < 1000000) {
+      $thousands = floor($number / 1000);
+      $remainder = $number % 1000;
+      return numberToWords($thousands) . ' Thousand' . (($remainder !== 0) ? ' ' . numberToWords($remainder) : '');
     }
 
     return 'number is out of range';

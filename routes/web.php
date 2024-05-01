@@ -3,7 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminSlipsController;
 use App\Http\Controllers\AdminBackupController;
+use App\Http\Controllers\AdminFlowupController;
 use App\Http\Controllers\AdminDoctorsController;
 use App\Http\Controllers\AdminSettingController;
 use App\Http\Controllers\AdminPatientsController;
@@ -64,8 +66,6 @@ Route::group(['middleware' => ['auth', 'usersession']], function () {
     Route::get('admin/patients/destroypatientsreport/{id}', [AdminPatientsController::class, 'destroyPatientReport'])->name('admin.patientsreport.destroy');
 
     Route::get('admin/patientsreport/edit/{id}', [AdminPatientsController::class, 'updateReport'])->name('admin.patientsreport.edit');
-
-    Route::get('/get-word-content', [AdminPatientsController::class, 'getWordContent'])->name('get-word-content');
 
     Route::post('admin/get-child-reports', [AdminPatientsController::class, 'getChildReports'])->name('admin.getchild.reports');
     Route::post('admin/get-sub-child-reports', [AdminPatientsController::class, 'getSubChildReports'])->name('admin.getsubchild.reports');
@@ -128,6 +128,20 @@ Route::group(['middleware' => ['auth', 'usersession']], function () {
     Route::get('admin/short_code/edit/{id}', [AdminShortCodeController::class, 'edit'])->name('admin.short_code.edit');
     Route::patch('admin/short_code/update/{id}', [AdminShortCodeController::class, 'update'])->name('admin.short_code.update');
     Route::get('admin/short_code/destroy/{id}', [AdminShortCodeController::class, 'destroy'])->name('admin.short_code.destroy');
+
+    Route::get("admin/slip", [AdminSlipsController::class, 'index'])->name('admin.slip.index');
+    Route::get('admin/slip/create', [AdminSlipsController::class, 'create'])->name('admin.slip.create');
+    Route::post('admin/slip/store', [AdminSlipsController::class, 'store'])->name('admin.slip.store');
+    Route::get('admin/slip/edit/{id}', [AdminSlipsController::class, 'edit'])->name('admin.slip.edit');
+    Route::patch('admin/slip/update/{id}', [AdminSlipsController::class, 'update'])->name('admin.slip.update');
+    Route::get('admin/slip/destroy/{id}', [AdminSlipsController::class, 'destroy'])->name('admin.slip.destroy');
+
+    Route::get("admin/slip-summary", [AdminSlipsController::class, 'indexSummary'])->name('admin.slip.summary');
+    Route::post('/admin/slip-pdf', [AdminSlipsController::class, 'viewSummarySlipPdf'])->name('admin.slip-pdf.view');
+
+    Route::post('/admin/slip-pdf-download', [AdminSlipsController::class, 'downloadSummarySlipPdf'])->name('admin.slip-pdf.download');
+
+    Route::get("admin/flowup", [AdminFlowupController::class, 'index'])->name('admin.flowup.index');
 });
 
 //Clear Cache facade value:

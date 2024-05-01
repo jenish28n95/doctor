@@ -7,6 +7,19 @@ use App\Models\Patientreport;
 ?>
 
 @extends('layouts.admin')
+@section('style')
+<link href="{{asset('css/jquery-ui.css')}}" rel="stylesheet">
+<style>
+   input[type="date"]::-webkit-calendar-picker-indicator {
+      display: none;
+   }
+
+   .ui-datepicker .ui-datepicker-prev,
+   .ui-datepicker .ui-datepicker-next {
+      background-color: blanchedalmond;
+   }
+</style>
+@endsectoion
 @section('content')
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
@@ -14,7 +27,12 @@ use App\Models\Patientreport;
    <section class="content-header">
       <h1>
          <b>Patients Lists</b> &nbsp; <a href="{{route('admin.patients.create')}}" class="bg-primary text-white text-decoration-none" style="padding:8px 12px;margin-left:15px"><i class="fa fa-plus" style="font-size:15px;">&nbsp;ADD</i></a>
-         <button class="btn bg-info" style="padding:12px 12px;margin-left:15px" id="downloadSelected">Download Slips</button>
+
+         <?php if ((!isset($_GET['start_date']) && !isset($_GET['end_date'])) || (isset($_GET['start_date']) && isset($_GET['end_date']) && $_GET['start_date'] == date('Y-m-d') && $_GET['end_date'] == date('Y-m-d'))) { ?>
+            <button class="btn btn-success" style="padding:12px 12px;margin-left:15px" id="downloadSelected">Generate Slips</button>
+         <?php } ?>
+         <!-- <button class="btn btn-success" style="padding:12px 12px;margin-left:15px" id="downloadSelected">Generate Slips</button> -->
+
       </h1>
       <ol class="breadcrumb">
          <li><a href="/admin/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
@@ -32,23 +50,26 @@ use App\Models\Patientreport;
                      {{ session('success') }}
                   </div>
                   @endif
+                  @if (session('error'))
+                  <div id="successMessage" class="alert pl-3 pt-2 pb-2" style="background-color:red;color:white">
+                     {{ session('error') }}
+                  </div>
+                  @endif
                </div>
                <div class="row">
                   <div class="col-md-4">
-                     <!-- <a href="{{route('admin.patients.create')}}" class="bg-primary text-white text-decoration-none" style="padding:12px 12px;margin-left:20px"><i class="fa fa-plus editable" style="font-size:15px;">&nbsp;ADD</i></a>
-                     <button class="btn bg-info" style="padding:12px 12px;margin-left:20px" id="downloadSelected">Download Slips</button> -->
                   </div>
                   <div class="col-md-8">
                      {!! Form::open(['method'=>'GET', 'action'=> 'AdminPatientsController@index','class'=>'form-horizontal']) !!}
                      @csrf
-                     <input type="date" name="start_date" id="start_date" class="border border-dark" value="{{ isset(request()->start_date) ? request()->start_date : date('Y-m-d') }}">
-                     <input type="date" name="end_date" id="end_date" class="border border-dark" value="{{ isset(request()->end_date) ? request()->end_date : date('Y-m-d') }}">
-                     <select name="session" id="session" class="border border-dark">
+                     <input type="date" name="start_date" id="start_date" class="border border-dark" value="{{ isset(request()->start_date) ? request()->start_date : date('Y-m-d') }}" onchange="return this.form.submit();">
+                     <input type="date" name="end_date" id="end_date" class="border border-dark" value="{{ isset(request()->end_date) ? request()->end_date : date('Y-m-d') }}" onchange="return this.form.submit();">
+                     <select name="session" id="session" class="border border-dark" onchange="return this.form.submit();">
                         <option value="all" {{ request()->session == 'all' ? 'selected' : ''}}>All session</option>
                         <option value="Morning" {{ request()->session == 'Morning' ? 'selected' : ''}}>Morning</option>
                         <option value="Evening" {{ request()->session == 'Evening' ? 'selected' : ''}}>Evening</option>
                      </select>
-                     <button type="submit" class="fa fa-search bg-default text-white"></button>
+                     <!-- <button type="submit" class="fa fa-search bg-default text-white"></button> -->
                      {!! Form::close() !!}
                   </div>
                </div>
@@ -58,8 +79,6 @@ use App\Models\Patientreport;
                      <thead class="bg-primary">
                         <tr>
                            <th><input type="checkbox" id="selectAll"></th>
-                           <th>Action</th>
-                           <th>Slip</th>
                            <th>Patient Name</th>
                            <th>Investigation</th>
                            <th>Age</th>
@@ -68,6 +87,8 @@ use App\Models\Patientreport;
                            <th>Arrival Time</th>
                            <th>Discount</th>
                            <th>Balance</th>
+                           <th>Slip</th>
+                           <th>Action</th>
                            <!-- <th>Net Amount</th> -->
                            <!-- <th>Status</th> -->
                            <!-- <th>Payment Mode</th> -->
@@ -76,19 +97,7 @@ use App\Models\Patientreport;
                      <tbody>
                         @foreach($patients as $index =>$patient)
                         <tr style="{{ ($patient->net_amount == ($patient->cash_amount + $patient->paytm_amount)) ? 'background-color: pink;' : 'background-color: orange;' }}">
-                           <td><input type="checkbox" class="checkbox" value="{{$patient->id}}"></td>
-                           <td>
-                              <!-- <a href="{{route('admin.patients.edit', $patient->id)}}"><i class="fa fa-edit" style="font-size:18px;background-color:rgba(255, 255, 255, 0.50);"></i></a> -->
-                              <a href="{{route('admin.patients.destroy', $patient->id)}}" style="padding-left:5px" onclick="return confirm('Sure ! You want to delete reocrd ?');"><i class="fa fa-trash" style="font-size:18px;background-color:rgba(255, 255, 255, 0.50);"></i></a>
-                           </td>
-                           <td>
-                              <?php
-                              $getdetail = Slip::where('patients_id', $patient->id)->first();
-                              ?>
-                              @if($patient->is_slip == 1 && isset($getdetail->file))
-                              <a href="/slipe/{{$getdetail->file}}" download='download'><i class="fa fa-file-pdf-o" style="font-size:15px;background-color:rgba(255, 255, 255, 0.25);padding:8px;"></i></a>
-                              @endif
-                           </td>
+                           <td><input type="checkbox" class="checkbox" value="{{$patient->id}}" {{ $patient->is_slip == 1 ? 'checked' : '' }}></td>
                            <td><a href="{{route('admin.patients.edit', $patient->id)}}" style="color: blue;">{{$patient->name}}</a></td>
                            <?php
                            $preports = Patientreport::where('patients_id', $patient->id)->get();
@@ -112,6 +121,21 @@ use App\Models\Patientreport;
                               @endif
                            </td>
                            <td>{{isset($patient->balance) ? $patient->balance : ''}}</td>
+                           <td>
+                              <?php
+                              $getdetail = Slip::where('patients_id', $patient->id)->first();
+                              ?>
+                              @if($patient->is_slip == 1 && isset($getdetail->file))
+                              <a href="/slipe/{{$getdetail->file}}" target='_blank'><i class="fa fa-file-pdf-o" style="font-size:18px;color:black"></i></a>
+                              @endif
+                           </td>
+                           <td>
+                              @if($patient->is_slip == 0)
+                              <a href="{{route('admin.patients.destroy', $patient->id)}}" style="padding-left:5px" onclick="return confirm('Sure ! You want to delete reocrd ?');"><i class="fa fa-trash" style="font-size:18px;background-color:rgba(255, 255, 255, 0.50);"></i></a>
+                              @else
+                              <p style="font-size:8px">Slip Generated</p>
+                              @endif
+                           </td>
                            <!-- <td>{{$patient->net_amount}}</td> -->
                            <!-- <td>{{$patient->payment}}</td> -->
                            <!-- <td>{{$patient->payment_mode}}</td> -->
@@ -170,7 +194,7 @@ use App\Models\Patientreport;
                         </tbody>
                      </table>
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-md-4" style="text-align: -webkit-center;">
                      <table style="border:1px solid #000;">
                         <tr>
                            <td style="background-color:#f1f1f1;border:1px solid #000;padding:5px;">patient</td>
@@ -211,9 +235,38 @@ use App\Models\Patientreport;
 @endsection
 
 @section('script')
+<script src="{{asset('js/jquery-ui.js')}}"></script>
 <script>
    $(document).ready(function() {
       $("#patientTable").DataTable();
+
+      $("#start_date").datepicker({
+         dateFormat: 'yy-mm-dd', // Set the date format
+         prevText: "click for previous months",
+         nextText: "click for next months",
+         showOtherMonths: true,
+         selectOtherMonths: false,
+         onSelect: function(dateText, inst) {
+            // Update the input field's value when a date is selected
+            $("#start_date").val(dateText);
+            // Submit the form
+            $(this).closest('form').submit();
+         }
+      });
+
+      $("#end_date").datepicker({
+         dateFormat: 'yy-mm-dd', // Set the date format
+         prevText: "click for previous months",
+         nextText: "click for next months",
+         showOtherMonths: true,
+         selectOtherMonths: false,
+         onSelect: function(dateText, inst) {
+            // Update the input field's value when a date is selected
+            $("#end_date").val(dateText);
+            // Submit the form
+            $(this).closest('form').submit();
+         }
+      });
    });
 </script>
 <script>

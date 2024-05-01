@@ -11,7 +11,7 @@ use App\Models\Childrtype;
 <div class="container">
   <table width="100%" style="border:1px solid #000;">
     <center>
-      <p style="font-size:22px;margin-top: -1px;">PRAMUKH SONOGRAPHY COLOR DOPPLER AND<br /> DIGITAL X-RAY CENTRE<br /><span style="font-size:10px;">104, 1st FLOOR, Shayona Complex,Jay Gangeshwar Society,Above DairyDon IceCream,Opp. Sargam Docotr House,<br />Hirabaug,Varachha Road,Surat-395006, M.89806 40990</span></p>
+      <p style="font-size:22px;margin-top: -1px;">PRAMUKH SONOGRAPHY COLOR DOPPLER AND<br /> DIGITAL X-RAY CENTRE<br /><span style="font-size:10px;">104, 1st Floor, Shayona Complex,Jay Gangeshwar Society,Above Dairy don IceCream,Opp. Sargam Doctor House,<br />Hirabaug,Varachha Road,Surat-395006, M.8980640990</span></p>
     </center>
     <div class="row" style="margin-top: -15px;">
       <div class="column-left">
@@ -34,7 +34,7 @@ use App\Models\Childrtype;
     <div class="column-left">
       <div class="d-flex align-items-center justify-content-center">
         <?php $docotr =  Doctor::where('id', $patient->doctors_id)->first();
-        $name = $docotr->name;
+        $name = $docotr->name . '-' . $docotr->degree;
         ?>
         <p style="margin-top: 30px;"><strong class="align-center title">Patient Name:&nbsp;</strong>{{$patient->name}}</p>
         <p style="margin-top: -5px;"><strong class="align-center title">Reference Doctor:&nbsp;</strong>{{$name}}</p>
@@ -83,6 +83,9 @@ use App\Models\Childrtype;
           {{$emp->amount}}
         </td>
       </tr>
+      @php
+      $p++;
+      @endphp
       @endforeach
       <tr>
         <td colspan="2" style="text-align:right;">

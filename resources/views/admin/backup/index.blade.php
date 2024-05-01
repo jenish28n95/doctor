@@ -5,11 +5,11 @@
   <!-- Content Header (Page header) -->
   <section class="content-header" style="display: flex; align-items: center;">
     <h1 style="margin-left: 10px;">
-      <b>Backup / Financial Slips</b>
+      <b>Backup</b>
     </h1>
     <ol class="breadcrumb" style="margin-left: auto; display: flex; align-items: center;">
       <li><a href="/admin/dashboard"><i class="fa fa-dashboard"></i> Home</a></li>
-      <li class="active">Backup / Financial Slips</li>
+      <li class="active">Backup</li>
     </ol>
   </section>
   <!-- Main content -->
@@ -27,7 +27,7 @@
       </div>
       @endif
 
-      <div class="col-md-6">
+      <div class="col-md-12">
         <div class="box box-primary">
           <div class="box-header">
             <h3 class="box-title">Backup</h3>
@@ -39,7 +39,7 @@
                 <div class="box-body">
                   <div class="form-group">
                     <label for="date_range" class="col-sm-2 control-label">Export</label>
-                    <div class="col-sm-8">
+                    <div class="col-sm-4">
                       <select name="date_range" id="date_range" class="custom-select form-control form-control-rounded" required>
                         <option value="">Select</option>
                         <option value="today">Today</option>
@@ -57,13 +57,13 @@
                   <div id="custom-dates" style="display: none;">
                     <div class="form-group">
                       <label for="start_date" class="col-sm-2 control-label">Start Date:</label>
-                      <div class="col-sm-8">
+                      <div class="col-sm-4">
                         <input type="date" name="start_date" id="start_date" class="form-control border border-dark mb-2" autocomplete="off">
                       </div>
                     </div>
                     <div class="form-group">
                       <label for="end_date" class="col-sm-2 control-label">End Date:</label>
-                      <div class="col-sm-8">
+                      <div class="col-sm-4">
                         <input type="date" name="end_date" id="end_date" class="form-control border border-dark mb-2" autocomplete="off">
                       </div>
                     </div>
@@ -71,7 +71,7 @@
                   <div id="custom-year" style="display: none;">
                     <div class="form-group">
                       <label for="select_year" class="col-sm-2 control-label">Select Financial Year</label>
-                      <div class="col-sm-8">
+                      <div class="col-sm-4">
                         <select name="select_year" id="select_year" class="custom-select form-control form-control-rounded">
                           <option value="">Select year</option>
                           @foreach ($f_years as $f_year)
@@ -82,8 +82,8 @@
                     </div>
                   </div>
                   <div class="form-group">
-                    <div class="col-md-8 col-sm-3 control-label">
-                      {!! Form::submit('Export', ['class'=>'btn btn-success text-white mt-1','style'=>'width:150px']) !!}
+                    <div class="col-md-4 col-sm-3 control-label">
+                      {!! Form::submit('Download', ['class'=>'btn btn-success text-white mt-1','style'=>'width:150px']) !!}
                     </div>
                   </div>
                 </div>
@@ -93,7 +93,7 @@
         </div>
       </div>
 
-      <div class="col-md-6">
+      <!-- <div class="col-md-6">
         <div class="box box-primary">
           <div class="box-header">
             <h3 class="box-title">Slips</h3>
@@ -126,7 +126,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
 
     </div>
     <!-- /.row -->
@@ -150,24 +150,24 @@
       document.getElementById('custom-year').style.display = 'none';
     }
   });
-  document.addEventListener('DOMContentLoaded', function() {
-    var form = document.getElementById('mySlipForm');
-    var button1 = document.getElementById('get_list');
-    var button2 = document.getElementById('download_list');
+  // document.addEventListener('DOMContentLoaded', function() {
+  //   var form = document.getElementById('mySlipForm');
+  //   var button1 = document.getElementById('get_list');
+  //   var button2 = document.getElementById('download_list');
 
-    button1.addEventListener('click', function() {
-      // Change the form action for button 1
-      form.action = "{{ route('admin.year-slip-pdf.download') }}";
-      // Submit the form
-      form.submit();
-    });
+  //   button1.addEventListener('click', function() {
+  //     // Change the form action for button 1
+  //     form.action = "{{ route('admin.year-slip-pdf.download') }}";
+  //     // Submit the form
+  //     form.submit();
+  //   });
 
-    button2.addEventListener('click', function() {
-      // Change the form action for button 2
-      form.action = "{{ route('admin.year-slip.download') }}";
-      // Submit the form
-      form.submit();
-    });
-  });
+  //   button2.addEventListener('click', function() {
+  //     // Change the form action for button 2
+  //     form.action = "{{ route('admin.year-slip.download') }}";
+  //     // Submit the form
+  //     form.submit();
+  //   });
+  // });
 </script>
 @endsection

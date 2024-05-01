@@ -1,3 +1,8 @@
+<?php
+
+use App\Models\Patient;
+?>
+
 @extends('layouts.admin')
 @section('content')
 <!-- Content Wrapper. Contains page content -->
@@ -47,7 +52,13 @@
                         @foreach($doctors as $index =>$doctor)
                         <td>
                            <a href="{{route('admin.doctors.edit', $doctor->id)}}"><i class="fa fa-edit" style="font-size:15px;background-color:rgba(255, 255, 255, 0.25);padding:8px;"></i></a>
+                           <?php
+                           $count_patient = 0;
+                           $count_patient = Patient::where('doctors_id', $doctor->id)->count();
+                           ?>
+                           @if($count_patient == 0)
                            <a href="{{route('admin.doctors.destroy', $doctor->id)}}" onclick="return confirm('Sure ! You want to delete reocrd ?');"><i class="fa fa-trash" style="font-size:15px;background-color:rgba(255, 255, 255, 0.25);padding:8px;"></i></a>
+                           @endif
                         </td>
                         <td>{{$doctor->name}}</td>
                         <td>{{$doctor->degree}}</td>

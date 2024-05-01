@@ -52,7 +52,7 @@
                         <select name="doctors_id" id="doctors_id" class="custom-select form-control form-control-rounded" required>
                            <option value="">Select Doctor</option>
                            @foreach($doctors as $doctor)
-                           <option value="{{$doctor->id}}">{{$doctor->name}}</option>
+                           <option value="{{$doctor->id}}">{{$doctor->name}}{{isset($doctor->degree) ? ' - '.$doctor->degree : ''}}</option>
                            @endforeach
                         </select>
                         @if($errors->has('doctors_id'))
@@ -143,30 +143,15 @@
                      </div>
                   </div>
                   <!-- <div class="form-group">
-                     <label for="payment_mode" class="col-sm-3 control-label">Payment Mode</label>
+                     <label for="created_at" class="col-sm-3 control-label">Patient Created Date</label>
                      <div class="col-sm-9">
-                        <select name="payment_mode" id="payment_mode" class="custom-select form-control form-control-rounded">
-                           <option value="">Select Payment Mode</option>
-                           <option value="cash">Cash</option>
-                           <option value="paytm">Paytm</option>
-                        </select>
-                        @if($errors->has('payment_mode'))
-                        <div class="error text-danger">{{ $errors->first('payment_mode') }}</div>
-                        @endif
-                     </div>
-                  </div>
-                  <div class="form-group">
-                     <label for="payment" class="col-sm-3 control-label">Payment</label>
-                     <div class="col-sm-9">
-                        <select name="payment" id="payment" class="custom-select form-control form-control-rounded" required>
-                           <option value="pending">Pending</option>
-                           <option value="done">Done</option>
-                        </select>
-                        @if($errors->has('payment'))
-                        <div class="error text-danger">{{ $errors->first('payment') }}</div>
+                        <input type="date" name="created_at" id="created_at" class="form-control border border-dark mb-2" placeholder="Enter date" autocomplete="off" required>
+                        @if($errors->has('created_at'))
+                        <div class="error text-danger">{{ $errors->first('created_at') }}</div>
                         @endif
                      </div>
                   </div> -->
+
                </div>
                <!--/.col (left) -->
             </div>

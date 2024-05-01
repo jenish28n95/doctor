@@ -23,6 +23,11 @@
                      {{ session('success') }}
                   </div>
                   @endif
+                  @if (session('error'))
+                  <div id="successMessage" class="alert pl-3 pt-2 pb-2" style="background-color:red;color:white">
+                     {{ session('error') }}
+                  </div>
+                  @endif
                </div>
                <!-- <div class="row">
                   <div class="col-md-9">
