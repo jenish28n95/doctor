@@ -58,6 +58,7 @@ use App\Models\Patientreport;
                </div>
                <div class="row">
                   <div class="col-md-4">
+                     <h4><strong style="color:red">&nbsp;&nbsp;No of patients:</strong> &nbsp; {{count($patients)}}</h4>
                   </div>
                   <div class="col-md-8">
                      {!! Form::open(['method'=>'GET', 'action'=> 'AdminPatientsController@index','class'=>'form-horizontal']) !!}
@@ -95,12 +96,25 @@ use App\Models\Patientreport;
                         </tr>
                      </thead>
                      <tbody>
+                        <?php
+                        $sonography = 0;
+                        $xray = 0;
+                        $doppler = 0;
+                        $procedure = 0;
+                        $special = 0;
+                        ?>
                         @foreach($patients as $index =>$patient)
                         <tr style="{{ ($patient->net_amount == ($patient->cash_amount + $patient->paytm_amount)) ? 'background-color: pink;' : 'background-color: orange;' }}">
                            <td><input type="checkbox" class="checkbox" value="{{$patient->id}}" {{ $patient->is_slip == 1 ? 'checked' : '' }}></td>
                            <td><a href="{{route('admin.patients.edit', $patient->id)}}" style="color: blue;">{{$patient->name}}</a></td>
                            <?php
                            $preports = Patientreport::where('patients_id', $patient->id)->get();
+                           $report3 = Patientreport::where('patients_id', $patient->id)->where('report_id', 3)->count();
+                           $report4 = Patientreport::where('patients_id', $patient->id)->where('report_id', 4)->count();
+                           $report2 = Patientreport::where('patients_id', $patient->id)->where('report_id', 2)->count();
+                           $report5 = Patientreport::where('patients_id', $patient->id)->where('report_id', 5)->count();
+                           $report6 = Patientreport::where('patients_id', $patient->id)->where('report_id', 6)->count();
+
                            $names = [];
                            foreach ($preports as $report) {
                               $childrtype = Childrtype::where('id', $report->childreport_id)->first();
@@ -140,6 +154,13 @@ use App\Models\Patientreport;
                            <!-- <td>{{$patient->payment}}</td> -->
                            <!-- <td>{{$patient->payment_mode}}</td> -->
                         </tr>
+                        <?php
+                        $sonography += $report3;
+                        $xray += $report4;
+                        $doppler += $report2;
+                        $procedure += $report5;
+                        $special += $report6;
+                        ?>
                         @endforeach
                      </tbody>
                   </table>
@@ -161,6 +182,32 @@ use App\Models\Patientreport;
 
                <div class="row" style="padding:10px">
                   <div class="col-md-4">
+                     <table style="border:1px solid #000;">
+                        <tr>
+                           <td style="background-color:#f1f1f1;border:1px solid #000;padding:5px;">Report Types</td>
+                           <td style="background-color:#f1f1f1;border:1px solid #000;padding:5px;">No of patients</td>
+                        </tr>
+                        <tr>
+                           <td style="background-color:#f1f1f1;border:1px solid #000;padding:5px;">SONOGRAPHY</td>
+                           <td style="text-align:right;border:1px solid #000;padding:5px;">{{$sonography}}</td>
+                        </tr>
+                        <tr>
+                           <td style="background-color:#f1f1f1;border:1px solid #000;padding:5px;">X-RAY</td>
+                           <td style="text-align:right;border:1px solid #000;padding:5px;">{{$xray}}</td>
+                        </tr>
+                        <tr>
+                           <td style="background-color:#f1f1f1;border:1px solid #000;padding:5px;">Colour Dopler</td>
+                           <td style="text-align:right;border:1px solid #000;padding:5px;">{{$doppler}}</td>
+                        </tr>
+                        <tr>
+                           <td style="background-color:#f1f1f1;border:1px solid #000;padding:5px;">Procedure</td>
+                           <td style="text-align:right;border:1px solid #000;padding:5px;">{{$procedure}}</td>
+                        </tr>
+                        <tr>
+                           <td style="background-color:#f1f1f1;border:1px solid #000;padding:5px;">Special Study</td>
+                           <td style="text-align:right;border:1px solid #000;padding:5px;">{{$special}}</td>
+                        </tr>
+                     </table>
                   </div>
                   <div class="col-md-4">
                      <table style="border:1px solid #000;">

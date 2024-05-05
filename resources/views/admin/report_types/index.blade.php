@@ -44,7 +44,7 @@
                         @foreach($rtypes as $index =>$rtype)
                         <td>
                            <a href="{{route('admin.report_types.edit', $rtype->id)}}"><i class="fa fa-edit" style="font-size:15px;background-color:rgba(255, 255, 255, 0.25);padding:8px;"></i></a>
-                           <a href="{{route('admin.report_types.destroy', $rtype->id)}}" onclick="return confirm('Sure ! You want to delete reocrd ?');"><i class="fa fa-trash" style="font-size:15px;background-color:rgba(255, 255, 255, 0.25);padding:8px;"></i></a>
+                           <!-- <a href="{{route('admin.report_types.destroy', $rtype->id)}}" onclick="return confirm('Sure ! You want to delete reocrd ?');"><i class="fa fa-trash" style="font-size:15px;background-color:rgba(255, 255, 255, 0.25);padding:8px;"></i></a> -->
                         </td>
                         <td>
                            <a href="{{route('admin.child_report_types.create')}}" class="bg-primary text-white text-decoration-none" style="padding:8px 12px;margin-left:15px"><i class="fa fa-plus editable" style="font-size:15px;"></i></a>

@@ -373,7 +373,7 @@ $ids[] = $emp->id;
             </td>
             <td>
               <?php $wallet = Wallet::where('patients_id', $patient->id)->first();
-              $comm = isset($wallet) ? $wallet->comm_amount : 0; ?>
+              $comm = isset($wallet) ? $wallet->comm_amount : 0;  ?>
               <div class="row">
                 <div class="col-md-2">
                   <div class="form-group remove-bottom-space">
@@ -472,7 +472,7 @@ $ids[] = $emp->id;
 </div>
 
 <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true" data-backdrop="static">
-  <div class="modal-dialog" style="width:100%">
+  <div class="modal-dialog modal-lg">
 
     <div class="modal-content">
       <div class="modal-body">
@@ -502,7 +502,7 @@ $ids[] = $emp->id;
 
 
 <div class="modal fade" id="editorModal" tabindex="-1" aria-labelledby="editorModalLabel" aria-hidden="true" data-backdrop="static">
-  <div class="modal-dialog" style="width:100%">
+  <div class="modal-dialog modal-lg">
 
     <div class="modal-content">
       <div class="modal-body">
@@ -512,7 +512,7 @@ $ids[] = $emp->id;
         @csrf
         <input type="hidden" name="patientreportid" value="{{$emp->id}}">
         <div id="editorContent_{{$emp->id}}" style="display: none;">
-          <textarea id="editorContainer_{{$emp->id}}" name="report_content">{!! $emp->report_content !!}</textarea>
+          <textarea id="editorContainer_{{$emp->id}}" class="ckeditor" name="report_content">{!! $emp->report_content !!}</textarea>
 
           <center>
             {!! Form::submit('Update', ['class'=>'btn btn-success text-white mt-1','style'=>'width:80px']) !!}
@@ -521,7 +521,6 @@ $ids[] = $emp->id;
         </div>
 
         {!! Form::close() !!}
-
         @endforeach
       </div>
     </div>
@@ -537,53 +536,31 @@ $ids[] = $emp->id;
 
 @section('script')
 
-<!-- <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script> -->
+<!-- <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script> -->
+<script src="https://cdn.ckeditor.com/ckeditor5/41.3.1/classic/ckeditor.js"></script>
+<!-- <script src="{{asset('js/ckeditor/ckeditor.js')}}"></script> -->
+
 <script>
-  // tinymce.init({
-  //   selector: 'textarea#editContent',
-  //   plugins: 'code table lists',
-  //   toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | indent outdent | bullist numlist | code | table',
-  //   toolbar_mode: 'wrap',
-  //   menubar: true,
-  //   toolbar_sticky: true,
-  //   height: 500,
-  // });
-</script>
-
-
-<!-- Place the first <script> tag in your HTML's <head> -->
-<script src="https://cdn.tiny.cloud/1/jxh191odi9urfty7n2hd4ksrfwslpp3pg6hajep17wimfq6k/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
-
-<!-- Place the following <script> and <textarea> tags your HTML's <body> -->
-<script>
-  tinymce.init({
-    selector: '#editContent',
-    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown',
-    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
-    tinycomments_mode: 'embedded',
-    tinycomments_author: 'Author name',
-    height: 550,
-    mergetags_list: [{
-        value: 'First.Name',
-        title: 'First Name'
-      },
-      {
-        value: 'Email',
-        title: 'Email'
-      },
-    ],
-    setup: function(editor) {
-      editor.on('keyup', function(e) {
-        var content = editor.getContent({
-          format: 'text'
+  CKEDITOR.replace('editContent', {
+    height: '450px',
+    width: '100%',
+    on: {
+      instanceReady: function(event) {
+        event.editor.on('key', function(event) {
+          if (event.data.keyCode === 13) { // Check if Enter key is pressed
+            var editorContent = event.editor.getData();
+            var atIndex = editorContent.lastIndexOf('^');
+            if (atIndex !== -1) {
+              // var searchTerm = editorContent.substring(atIndex + 1).trim();
+              var searchTerm = editorContent.substring(atIndex + 1, atIndex + 5).trim();
+              searchTerm = searchTerm.replace(/<\/?[^>]+(>|$)/g, "");
+              event.cancel(); // Cancel the default Enter key behavior
+              fetchRelatedContent(searchTerm);
+            }
+          }
         });
-        var match = content.match(/\^(\w+)/); // Match "^" followed by a word
-        if (match) {
-          var searchTerm = match[1]; // Extract the search term after "^"
-          fetchRelatedContent(searchTerm); // Call function to fetch related content
-        }
-      });
-    },
+      }
+    }
   });
 
   function fetchRelatedContent(searchTerm) {
@@ -607,17 +584,13 @@ $ids[] = $emp->id;
   }
 
   function replaceTextWithSuggestion(value) {
-    var editor = tinymce.get('editContent');
-    var content = editor.getContent(); // Get current content
-    var match = content.match(/\^(\w+)/);
-    if (match) {
-      var searchTerm = match[0];
-      var newText = content.replace(searchTerm, value);
-      editor.setContent(newText);
-    }
+    var editor = CKEDITOR.instances.editContent;
+    var editorContent = editor.getData();
+    var atIndex = editorContent.lastIndexOf('^');
+    var newText = editorContent.substring(0, atIndex) + value + editorContent.substring(atIndex + 5);
+    editor.setData(newText);
   }
 </script>
-
 
 <script>
   function openModaledit(id) {
@@ -637,25 +610,25 @@ $ids[] = $emp->id;
 
   var editorIds = @json(array_unique($ids));
   editorIds.forEach(function(editorId) {
-    tinymce.init({
-      selector: '#editorContainer_' + editorId,
-      plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown',
-      toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
-      tinycomments_mode: 'embedded',
-      tinycomments_author: 'Author name',
-      height: 550,
-      setup: function(editor) {
-        editor.on('keyup', function(e) {
-          var content = editor.getContent({
-            format: 'text'
+    CKEDITOR.replace('editorContainer_' + editorId, {
+      height: '450px',
+      width: '100%',
+      on: {
+        instanceReady: function(event) {
+          event.editor.on('key', function(event) {
+            if (event.data.keyCode === 13) { // Check if Enter key is pressed
+              var editorContent = event.editor.getData();
+              var atIndex = editorContent.lastIndexOf('^');
+              if (atIndex !== -1) {
+                var searchTerm = editorContent.substring(atIndex + 1, atIndex + 5).trim();
+                searchTerm = searchTerm.replace(/<\/?[^>]+(>|$)/g, "");
+                event.cancel(); // Cancel the default Enter key behavior
+                fetchRelatedContentDynamic(searchTerm, editorId);
+              }
+            }
           });
-          var match = content.match(/\^(\w+)/); // Match "^" followed by a word
-          if (match) {
-            var searchTerm = match[1]; // Extract the search term after "^"
-            fetchRelatedContentDynamic(searchTerm, editorId); // Call function to fetch related content
-          }
-        });
-      },
+        }
+      }
     });
   });
 
@@ -682,14 +655,11 @@ $ids[] = $emp->id;
 
   // Function to replace editor content with a suggestion
   function replaceTextWithSuggestionDynamic(value, editorId) {
-    var editor = tinymce.get('editorContainer_' + editorId);
-    var content = editor.getContent(); // Get current content
-    var match = content.match(/\^(\w+)/);
-    if (match) {
-      var searchTerm = match[0]; // Extract the search term including "^"
-      var newText = content.replace(searchTerm, value); // Replace search term with fetched content
-      editor.setContent(newText); // Set new content
-    }
+    var editor = CKEDITOR.instances['editorContainer_' + editorId]; // Dynamically construct the CKEditor instance ID
+    var editorContent = editor.getData();
+    var atIndex = editorContent.lastIndexOf('^');
+    var newText = editorContent.substring(0, atIndex) + value + editorContent.substring(atIndex + 5);
+    editor.setData(newText);
   }
 
   function closeModal() {
@@ -697,6 +667,12 @@ $ids[] = $emp->id;
   }
 
   function closeaddModal() {
+    if (editorInstance) {
+      editorInstance.setData('');
+      editorInstance.destroy().then(() => {
+        editorInstance = null; // Reset the instance reference
+      });
+    }
     $('#addModal').modal('hide');
   }
 </script>
@@ -821,6 +797,7 @@ $ids[] = $emp->id;
               // CKEDITOR.instances['editContent'].setData(response.error);
             } else {
               console.log('Content retrieved successfully:', response.content);
+              // CKEDITOR.instances.editContent.setData(response.content);
               openModaladd(response.content);
             }
           },
@@ -842,9 +819,20 @@ $ids[] = $emp->id;
   });
 
   function openModaladd(content) {
+    // Set the content of CKEditor in the modal
+    ClassicEditor
+      .create(document.querySelector('#editContent'), {
+        width: '800px', // Adjust as needed
+        height: '400px',
+        toolbar: ['heading', '|', 'bold', 'italic', 'underline', '|', 'alignment:left', 'alignment:center', 'alignment:right']
+      })
+      .then(editor => {
+        editorInstance = editor; // Store the instance reference
+        editor.setData(content); // Set the content
+      })
+    // CKEDITOR.instances.editContent.setData(content);
+    // Show the modal
     $('#addModal').modal('show');
-
-    tinymce.get('editContent').setContent(content);
   }
 
   $(document).ready(function() {
@@ -903,8 +891,7 @@ $ids[] = $emp->id;
     }
 
     document.getElementById('net_amount').value = updatedNetAmount;
-    document.getElementById('balance').value = updatedNetAmount;
-    // document.getElementById('doctor_comm').value = 0;
+    document.getElementById('doctor_comm').value = 0;
   }
 
   function togglePaymentFields() {

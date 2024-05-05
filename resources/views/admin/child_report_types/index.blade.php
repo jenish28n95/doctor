@@ -49,7 +49,7 @@
                         @foreach($childrtypes as $index =>$rtype)
                         <td>
                            <a href="{{route('admin.child_report_types.edit', $rtype->id)}}"><i class="fa fa-edit" style="font-size:15px;background-color:rgba(255, 255, 255, 0.25);padding:8px;"></i></a>
-                           <a href="{{route('admin.child_report_types.destroy', $rtype->id)}}" onclick="return confirm('Sure ! You want to delete reocrd ?');"><i class="fa fa-trash" style="font-size:15px;background-color:rgba(255, 255, 255, 0.25);padding:8px;"></i></a>
+                           <!-- <a href="{{route('admin.child_report_types.destroy', $rtype->id)}}" onclick="return confirm('Sure ! You want to delete reocrd ?');"><i class="fa fa-trash" style="font-size:15px;background-color:rgba(255, 255, 255, 0.25);padding:8px;"></i></a> -->
                         </td>
                         <td>{{$rtype->rtypes->name}}</td>
                         <td>{{$rtype->name}}</td>

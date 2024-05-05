@@ -29,8 +29,9 @@
                   <div class="form-group">
                      <label for="code" class="col-sm-2 control-label">Short code</label>
                      <div class="col-sm-4">
-                        <input type="text" class="form-control" name="code" id="code" placeholder="Enter short code " minlength="4" maxlength="4" required>
-                        <p style="font-size:12px;color:red">Minimun and maximum 4 cherector only</p>
+                        <input type="text" class="form-control" name="code" id="code" placeholder="Enter short code" required>
+                        <!-- <input type="text" class="form-control" name="code" id="code" placeholder="Enter short code" minlength="4" maxlength="4" required>
+                        <p style="font-size:12px;color:red">Minimun and maximum 4 cherector only</p> -->
                         @if($errors->has('code'))
                         <div class="error text-danger">{{ $errors->first('code') }}</div>
                         @endif

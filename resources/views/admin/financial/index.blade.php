@@ -35,7 +35,7 @@
                         <div class="form-group">
                            <label for="year" class="col-sm-2 control-label">Year</label>
                            <div class="col-sm-10">
-                              <input type="text" class="form-control" name="year" id="year" placeholder="Enter year" required>
+                              <input type="text" class="form-control" name="year" id="year" placeholder="XXXX-XXXX" pattern="[0-9]{4}-[0-9]{4}" required>
                               @if($errors->has('year'))
                               <div class="error text-danger">{{ $errors->first('year') }}</div>
                               @endif
@@ -79,7 +79,7 @@
                         @foreach($financialyears as $index =>$year)
                         <td>
                            <a href="{{route('admin.financial_year.edit', $year->id)}}"><i class="fa fa-edit" style="font-size:15px;background-color:rgba(255, 255, 255, 0.25);padding:8px;"></i></a>
-                           <a href="{{route('admin.financial_year.destroy', $year->id)}}" onclick="return confirm('Sure ! You want to delete reocrd ?');"><i class="fa fa-trash" style="font-size:15px;background-color:rgba(255, 255, 255, 0.25);padding:8px;"></i></a>
+                           <!-- <a href="{{route('admin.financial_year.destroy', $year->id)}}" onclick="return confirm('Sure ! You want to delete reocrd ?');"><i class="fa fa-trash" style="font-size:15px;background-color:rgba(255, 255, 255, 0.25);padding:8px;"></i></a> -->
                         </td>
                         <td>{{$year->year}}</td>
                         </tr>
@@ -117,6 +117,13 @@
             form.submit();
          }
       });
+   });
+   document.getElementById('year').addEventListener('input', function(e) {
+      var target = e.target;
+      var value = target.value.replace(/\D/g, '').substring(0, 8);
+      var formattedValue = value.replace(/(\d{4})/, '$1-').substring(0, 9); // Add '-' after 4 digits
+
+      target.value = formattedValue;
    });
 </script>
 @endsection

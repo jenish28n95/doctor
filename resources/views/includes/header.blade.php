@@ -24,7 +24,7 @@
         <li class="btn-success">
           <form action="{{route('admin.change.f_year')}}" id="change_f_year" class="form-horizontal" method="post">
             @csrf
-            <select name="financial_year" id="financial_year" class="custom-select form-control form-control-rounded" onchange="return this.submit();">
+            <select name="financial_year" id="financial_year" class="custom-select form-control form-control-rounded" onchange="return this.form.submit();">
               @foreach ($f_years as $f_year)
               <option value="{{$f_year->year}}" {{ Session::get('setfinancialyear') == $f_year->year ? 'selected' : ''}}>{{$f_year->year}}</option>
               @endforeach

@@ -88,15 +88,15 @@ class AdminPatientsController extends Controller
         $self_id = Doctor::where('name', 'self')->value('id');
         // $patient = Patient::where('id', $patient->id)->first();
 
-        // if ($patient->doctors_id != $self_id) {
-        $wallet = new Wallet;
-        $wallet->doctors_id = $patient->doctors_id;
-        $wallet->patients_id = $patient->id;
-        $wallet->comm_amount = 0;
-        $wallet->comm_date = $patient->created_at;
-        $wallet->f_year = $f_year;
-        $wallet->save();
-        // }
+        if ($patient->doctors_id != $self_id) {
+            $wallet = new Wallet;
+            $wallet->doctors_id = $patient->doctors_id;
+            $wallet->patients_id = $patient->id;
+            $wallet->comm_amount = 0;
+            $wallet->comm_date = $patient->created_at;
+            $wallet->f_year = $f_year;
+            $wallet->save();
+        }
 
         return redirect('/admin/patients/edit/' . $patient->id);
     }
@@ -184,7 +184,7 @@ class AdminPatientsController extends Controller
             Wallet::where('patients_id', $id)
                 ->where('f_year', $f_year)
                 ->whereDate('comm_date', $patient->created_at)
-                ->update(['doctors_id' => $patient->doctors_id, 'comm_amount' => 0]);
+                ->delete();
         } else {
             Wallet::where('patients_id', $id)
                 ->where('f_year', $f_year)
@@ -192,8 +192,7 @@ class AdminPatientsController extends Controller
                 ->update(['doctors_id' => $patient->doctors_id]);
         }
 
-        // return redirect('admin/patients')->with('success', "Update Record Successfully");
-        return Redirect::back()->with('success', "Update Record Successfully");
+        return redirect('admin/patients')->with('success', "Update Record Successfully");
     }
 
     /**
@@ -232,9 +231,10 @@ class AdminPatientsController extends Controller
 
         $htmlContent  = $request->editContent;
 
+        // dd($htmlContent);
+
         $htmlContent = '<div style="width: 90%; margin: 15% auto 0 auto;">' . $htmlContent . '</div>';
-        $htmlContent = str_replace('margin-left: 3in', 'margin-left: auto', $htmlContent);
-        $htmlContent = str_replace('<table', '<table style="border-collapse: collapse; border-spacing: 0; padding: 0px;width:100%;"', $htmlContent);
+        $htmlContent = str_replace('margin-left: 3in', 'margin-left: 2in', $htmlContent);
         // $htmlContent = str_replace('border-left-style: double;', 'border-left-style: double;width:20%;', $htmlContent);
         // $htmlContent = str_replace('border-right-style: double;', 'border-right-style: double;width:15%;', $htmlContent);
 
@@ -291,62 +291,60 @@ class AdminPatientsController extends Controller
 
         $getwallet = Wallet::where('patients_id', $request->patients_id)->where('f_year', $f_year)->whereDate('comm_date', $patient->created_at)->first();
 
-        // if ($patient->doctors_id != $self_id) {
-        // if ($patient->discount != 0 && $patient->discount != '') {
-        if ($patient->discount_type == 'per') {
-            $result = ($patient->discount / 100) * ($patient->basic_amount);
-        }
-        if ($patient->discount_type == 'fix') {
-            $result = $patient->discount;
-        }
-        $commission = $getwallet->comm_amount;
-        // } else {
-        //     if ($patient->doctors_id == $self_id) {
-        //         $commission = 0;
-        //     } elseif ($patient->net_amount >= $f_setting->amount) {
-        //         $commission = $f_setting->comm_amount;
-        //     } elseif ($patient->net_amount < $f_setting->amount) {
-        //         $commission = $patient->net_amount * $p_setting->comm_amount;
-        //     }
-        // }
+        if ($patient->doctors_id != $self_id) {
+            if ($patient->discount != 0 && $patient->discount != '') {
+                if ($patient->discount_type == 'per') {
+                    $result = ($patient->discount / 100) * ($patient->basic_amount);
+                }
+                if ($patient->discount_type == 'fix') {
+                    $result = $patient->discount;
+                }
+                $commission = $getwallet->comm_amount;
+            } else {
+                if ($patient->doctors_id == $self_id) {
+                    $commission = 0;
+                } elseif ($patient->net_amount >= $f_setting->amount) {
+                    $commission = $f_setting->comm_amount;
+                } elseif ($patient->net_amount < $f_setting->amount) {
+                    $commission = $patient->net_amount * $p_setting->comm_amount;
+                }
+            }
 
-        $patient->discount_amount = $result;
-        $patient->net_amount = ($patient->basic_amount) - $result;
-        $patient->save();
+            $patient->discount_amount = $result;
+            $patient->net_amount = ($patient->basic_amount) - $result;
+            $patient->save();
 
-        $com = isset($request->doctor_comm) ? $request->doctor_comm : 0;
-
-        if ($wallet_count > 0) {
+            if ($wallet_count > 0) {
+                Wallet::where('patients_id', $patient->id)
+                    ->where('f_year', $f_year)
+                    ->whereDate('comm_date', $patient->created_at)
+                    ->update(['comm_amount' => $commission]);
+            } else {
+                $wallet = new Wallet;
+                $wallet->doctors_id = $patient->doctors_id;
+                $wallet->patients_id = $patient->id;
+                $wallet->comm_amount = $commission;
+                $wallet->comm_date = $patient->created_at;
+                $wallet->f_year = $f_year;
+                $wallet->save();
+            }
+        } else {
             Wallet::where('patients_id', $patient->id)
                 ->where('f_year', $f_year)
                 ->whereDate('comm_date', $patient->created_at)
-                ->update(['comm_amount' => $commission]);
-        } else {
-            $wallet = new Wallet;
-            $wallet->doctors_id = $patient->doctors_id;
-            $wallet->patients_id = $patient->id;
-            $wallet->comm_amount = $commission;
-            $wallet->comm_date = $patient->created_at;
-            $wallet->f_year = $f_year;
-            $wallet->save();
+                ->delete();
+            if ($patient->discount != 0 && $patient->discount != '') {
+                if ($patient->discount_type == 'per') {
+                    $result = ($patient->discount / 100) * ($patient->basic_amount);
+                }
+                if ($patient->discount_type == 'fix') {
+                    $result = $patient->discount;
+                }
+                $patient->discount_amount = $result;
+                $patient->net_amount = ($patient->basic_amount) - $result;
+                $patient->save();
+            }
         }
-        // } else {
-        //     Wallet::where('patients_id', $patient->id)
-        //         ->where('f_year', $f_year)
-        //         ->whereDate('comm_date', $patient->created_at)
-        //         ->delete();
-        //     if ($patient->discount != 0 && $patient->discount != '') {
-        //         if ($patient->discount_type == 'per') {
-        //             $result = ($patient->discount / 100) * ($patient->basic_amount);
-        //         }
-        //         if ($patient->discount_type == 'fix') {
-        //             $result = $patient->discount;
-        //         }
-        //         $patient->discount_amount = $result;
-        //         $patient->net_amount = ($patient->basic_amount) - $result;
-        //         $patient->save();
-        //     }
-        // }
 
         $cash = isset($patient->cash_amount) ? $patient->cash_amount : 0;
         $paytm = isset($patient->paytm_amount) ? $patient->paytm_amount : 0;
@@ -395,7 +393,7 @@ class AdminPatientsController extends Controller
             $patient->discount_type = 'per';
             $patient->save();
 
-            Wallet::where('patients_id', $data->patients_id)->where('f_year', $f_year)->whereDate('comm_date', $patient->created_at)->update(['comm_amount' => 0]);
+            Wallet::where('patients_id', $data->patients_id)->where('f_year', $f_year)->whereDate('comm_date', $patient->created_at)->delete();
         } else {
 
             $total = 0;
@@ -418,59 +416,59 @@ class AdminPatientsController extends Controller
 
             $getwallet = Wallet::where('patients_id', $patient->id)->where('f_year', $f_year)->whereDate('comm_date', $patient->created_at)->first();
 
-            // if ($patient->doctors_id != $self_id) {
-            // if ($patient->discount != 0 && $patient->discount != '') {
-            if ($patient->discount_type == 'per') {
-                $result = ($patient->discount / 100) * ($patient->basic_amount);
-            }
-            if ($patient->discount_type == 'fix') {
-                $result = $patient->discount;
-            }
-            $commission = $getwallet->comm_amount;
-            // } else {
-            //     if ($patient->doctors_id == $self_id) {
-            //         $commission = 0;
-            //     } elseif ($patient->net_amount >= $f_setting->amount) {
-            //         $commission = $f_setting->comm_amount;
-            //     } elseif ($patient->net_amount < $f_setting->amount) {
-            //         $commission = $patient->net_amount * $p_setting->comm_amount;
-            //     }
-            // }
-            $patient->discount_amount = $result;
-            $patient->net_amount = ($patient->basic_amount) - $result;
-            $patient->save();
+            if ($patient->doctors_id != $self_id) {
+                if ($patient->discount != 0 && $patient->discount != '') {
+                    if ($patient->discount_type == 'per') {
+                        $result = ($patient->discount / 100) * ($patient->basic_amount);
+                    }
+                    if ($patient->discount_type == 'fix') {
+                        $result = $patient->discount;
+                    }
+                    $commission = $getwallet->comm_amount;
+                } else {
+                    if ($patient->doctors_id == $self_id) {
+                        $commission = 0;
+                    } elseif ($patient->net_amount >= $f_setting->amount) {
+                        $commission = $f_setting->comm_amount;
+                    } elseif ($patient->net_amount < $f_setting->amount) {
+                        $commission = $patient->net_amount * $p_setting->comm_amount;
+                    }
+                }
+                $patient->discount_amount = $result;
+                $patient->net_amount = ($patient->basic_amount) - $result;
+                $patient->save();
 
-            if ($wallet_count > 0) {
-                Wallet::where('patients_id', $patient->patients_id)
+                if ($wallet_count > 0) {
+                    Wallet::where('patients_id', $patient->patients_id)
+                        ->where('f_year', $f_year)
+                        ->whereDate('comm_date', $patient->created_at)
+                        ->update(['comm_amount' => $commission]);
+                } else {
+                    $wallet = new Wallet;
+                    $wallet->doctors_id = $patient->doctors_id;
+                    $wallet->patients_id = $patient->patients_id;
+                    $wallet->comm_amount = $commission;
+                    $wallet->comm_date = $patient->created_at;
+                    $wallet->f_year = $f_year;
+                    $wallet->save();
+                }
+            } else {
+                Wallet::where('patients_id', $patient->id)
                     ->where('f_year', $f_year)
                     ->whereDate('comm_date', $patient->created_at)
-                    ->update(['comm_amount' => $commission]);
-            } else {
-                $wallet = new Wallet;
-                $wallet->doctors_id = $patient->doctors_id;
-                $wallet->patients_id = $patient->patients_id;
-                $wallet->comm_amount = $commission;
-                $wallet->comm_date = $patient->created_at;
-                $wallet->f_year = $f_year;
-                $wallet->save();
+                    ->delete();
+                if ($patient->discount != 0 && $patient->discount != '') {
+                    if ($patient->discount_type == 'per') {
+                        $result = ($patient->discount / 100) * ($patient->basic_amount);
+                    }
+                    if ($patient->discount_type == 'fix') {
+                        $result = $patient->discount;
+                    }
+                    $patient->discount_amount = $result;
+                    $patient->net_amount = ($patient->basic_amount) - $result;
+                    $patient->save();
+                }
             }
-            // } else {
-            //     Wallet::where('patients_id', $patient->id)
-            //         ->where('f_year', $f_year)
-            //         ->whereDate('comm_date', $patient->created_at)
-            //         ->delete();
-            //     if ($patient->discount != 0 && $patient->discount != '') {
-            //         if ($patient->discount_type == 'per') {
-            //             $result = ($patient->discount / 100) * ($patient->basic_amount);
-            //         }
-            //         if ($patient->discount_type == 'fix') {
-            //             $result = $patient->discount;
-            //         }
-            //         $patient->discount_amount = $result;
-            //         $patient->net_amount = ($patient->basic_amount) - $result;
-            //         $patient->save();
-            //     }
-            // }
 
             $cash = isset($patient->cash_amount) ? $patient->cash_amount : 0;
             $paytm = isset($patient->paytm_amount) ? $patient->paytm_amount : 0;
@@ -503,8 +501,8 @@ class AdminPatientsController extends Controller
 
         $htmlContent  = $request->report_content;
 
-        // $htmlContent = '<div style="width: 90%; margin: 15% auto 0 auto;">' . $htmlContent . '</div>';
-        // $htmlContent = str_replace('margin-left: 3in', 'margin-left: 2in', $htmlContent);
+        $htmlContent = '<div style="width: 90%; margin: 15% auto 0 auto;">' . $htmlContent . '</div>';
+        $htmlContent = str_replace('margin-left: 3in', 'margin-left: 2in', $htmlContent);
         // $htmlContent = str_replace('<table', '<table style="border-collapse: collapse; border-spacing: 0; padding: 0px;width:100%;"', $htmlContent);
         // $htmlContent = str_replace('<td style="', '<td style="border: 1px solid #000; padding: 0;"', $htmlContent);
 
@@ -573,6 +571,13 @@ class AdminPatientsController extends Controller
             $payment = 'pending';
         }
 
+        if ($patient->discount_type == 'per') {
+            $result = ($request->discount / 100) * ($patient->basic_amount);
+        }
+        if ($patient->discount_type == 'fix') {
+            $result = $request->discount;
+        }
+
         $patient->payment_mode = $request->payment_mode;
         $patient->cash_amount = $cash;
         $patient->paytm_amount = $paytm;
@@ -580,6 +585,8 @@ class AdminPatientsController extends Controller
         $patient->payment = $payment;
         $patient->discount_type = $request->discount_type;
         $patient->discount = $request->discount;
+        // $patient->discount_amount = $result;
+        // $patient->net_amount = ($patient->basic_amount) - $result;
         $patient->save();
 
         Wallet::where('patients_id', $patient->id)
@@ -595,47 +602,61 @@ class AdminPatientsController extends Controller
 
         $getwallet = Wallet::where('patients_id', $request->id)->where('f_year', $f_year)->whereDate('comm_date', $patient->created_at)->first();
 
-        // if (($patient->doctors_id != $self_id)) {
-        // if ($patient->discount != 0 && $patient->discount != '') {
-        // if ($patient->discount_type == 'per') {
-        //     $result = ($patient->discount / 100) * ($patient->basic_amount);
-        // }
-        // if ($patient->discount_type == 'fix') {
-        //     $result = $patient->discount;
-        // }
-        // $commission = $getwallet->comm_amount;
-        // } else {
-        //     if ($patient->doctors_id == $self_id) {
-        //         $commission = 0;
-        //     } elseif ($patient->net_amount >= $f_setting->amount) {
-        //         $commission = $f_setting->comm_amount;
-        //     } elseif ($patient->net_amount < $f_setting->amount) {
-        //         $commission = $patient->net_amount * $p_setting->comm_amount;
-        //     }
-        // }
+        if (($patient->doctors_id != $self_id)) {
+            if ($patient->discount != 0 && $patient->discount != '') {
+                // if ($patient->discount_type == 'per') {
+                //     $result = ($patient->discount / 100) * ($patient->basic_amount);
+                // }
+                // if ($patient->discount_type == 'fix') {
+                //     $result = $patient->discount;
+                // }
+                $commission = $getwallet->comm_amount;
+            } else {
+                if ($patient->doctors_id == $self_id) {
+                    $commission = 0;
+                } elseif ($patient->net_amount >= $f_setting->amount) {
+                    $commission = $f_setting->comm_amount;
+                } elseif ($patient->net_amount < $f_setting->amount) {
+                    $commission = $patient->net_amount * $p_setting->comm_amount;
+                }
+            }
 
-        $commission = isset($request->doctor_comm) ? $request->doctor_comm : 0;
+            // $patient->discount_amount = $result;
+            // $patient->net_amount = ($patient->basic_amount) - $result;
+            // $patient->balance = ($patient->basic_amount) - $result;
+            // $patient->save();
 
-        if ($wallet_count > 0) {
+            if ($wallet_count > 0) {
+                Wallet::where('patients_id', $patient->id)
+                    ->where('f_year', $f_year)
+                    ->whereDate('comm_date', $patient->created_at)
+                    ->update(['comm_amount' => $commission]);
+            } else {
+                $wallet = new Wallet;
+                $wallet->doctors_id = $patient->doctors_id;
+                $wallet->patients_id = $patient->id;
+                $wallet->comm_amount = $commission;
+                $wallet->comm_date = $patient->created_at;
+                $wallet->f_year = $f_year;
+                $wallet->save();
+            }
+        } else {
             Wallet::where('patients_id', $patient->id)
                 ->where('f_year', $f_year)
                 ->whereDate('comm_date', $patient->created_at)
-                ->update(['comm_amount' => $commission]);
-        } else {
-            $wallet = new Wallet;
-            $wallet->doctors_id = $patient->doctors_id;
-            $wallet->patients_id = $patient->id;
-            $wallet->comm_amount = $commission;
-            $wallet->comm_date = $patient->created_at;
-            $wallet->f_year = $f_year;
-            $wallet->save();
+                ->delete();
+            if ($patient->discount != 0 && $patient->discount != '') {
+                // if ($patient->discount_type == 'per') {
+                //     $result = ($patient->discount / 100) * ($patient->basic_amount);
+                // }
+                // if ($patient->discount_type == 'fix') {
+                //     $result = $patient->discount;
+                // }
+                // $patient->discount_amount = $result;
+                // $patient->net_amount = ($patient->basic_amount) - $result;
+                // $patient->save();
+            }
         }
-        // } else {
-        //     Wallet::where('patients_id', $patient->id)
-        //         ->where('f_year', $f_year)
-        //         ->whereDate('comm_date', $patient->created_at)
-        //         ->delete();
-        // }
         return Redirect::back();
     }
 
@@ -730,8 +751,6 @@ class AdminPatientsController extends Controller
             $doctorname = 'DR.' . $doctor->name . '-' . $doctor->degree;
             $formatted_date = Carbon::createFromFormat('Y-m-d H:i:s', $patient->created_at);
             $date = $formatted_date->format('d/m/Y');
-
-            // dd($content);
 
             $content = str_replace("PHPWord", " ", $content);
             $content = str_replace("{patname}", '&nbsp;' . $pname, $content);
@@ -875,6 +894,6 @@ class AdminPatientsController extends Controller
             // }
         }
 
-        return redirect()->back()->with('success', "Slips Generated succesfully");
+        return redirect()->back()->with('success', "Slip Download succesfully");
     }
 }

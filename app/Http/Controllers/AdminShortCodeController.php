@@ -39,7 +39,8 @@ class AdminShortCodeController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'code' => 'required|string|min:4|max:4',
+            // 'code' => 'required|string|min:4|max:4',
+            'code' => 'required|string',
             'value' => 'required',
         ]);
 
@@ -85,7 +86,8 @@ class AdminShortCodeController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'code' => 'required|string|min:4|max:4',
+            // 'code' => 'required|string|min:4|max:4',
+            'code' => 'required|string',
             'value' => 'required',
         ]);
 
