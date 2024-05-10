@@ -8,7 +8,7 @@ use App\Models\Patient;
 @section('content')
 <div class="container">
   <center>
-    <p style="font-size:16px;margin-top:-12px"><b>Pramukh Sonography Color Doppler and Digital X-Ray Centre</b><br /><u>Date Wise Income Report</u></p>
+    <p style="font-size:16px;margin-top:-12px"><b>Pramukh Sonography Color Doppler and Digital X-Ray Center</b><br /><u>Date Wise Income Report</u></p>
   </center>
   <br />
 

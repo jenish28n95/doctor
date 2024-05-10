@@ -313,7 +313,12 @@ $ids[] = $emp->id;
               <a href="{{$emp->file}}" target="_blank"><i class="fa fa-file-pdf-o" style="font-size:22px;color:red"></i></a>
             </td>
             <td>
-              {{$emp->amount}}
+              {!! Form::open(['method'=>'post', 'action'=> 'AdminPatientsController@updateReportAmount', 'class'=>'form-horizontal']) !!}
+              @csrf
+              <input type="hidden" name="p_report_id" value="{{$emp->id}}">
+              <input type="number" name="amount" id="amount" value="{{$emp->amount}}">
+              {!! Form::submit('update', ['class'=>'btn btn-success text-white mt-1','style'=>'width:100px']) !!}
+              {!! Form::close() !!}
             </td>
           </tr>
 
@@ -472,6 +477,7 @@ $ids[] = $emp->id;
 </div>
 
 <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true" data-backdrop="static">
+  <!-- <div class="modal-dialog modal-lg"> -->
   <div class="modal-dialog" style="width:100%">
 
     <div class="modal-content">
@@ -502,6 +508,7 @@ $ids[] = $emp->id;
 
 
 <div class="modal fade" id="editorModal" tabindex="-1" aria-labelledby="editorModalLabel" aria-hidden="true" data-backdrop="static">
+  <!-- <div class="modal-dialog modal-lg"> -->
   <div class="modal-dialog" style="width:100%">
 
     <div class="modal-content">
@@ -559,7 +566,7 @@ $ids[] = $emp->id;
   tinymce.init({
     selector: '#editContent',
     plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown',
-    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight lineheightzero | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
     tinycomments_mode: 'embedded',
     tinycomments_author: 'Author name',
     height: 550,
@@ -573,6 +580,22 @@ $ids[] = $emp->id;
       },
     ],
     setup: function(editor) {
+      function setZeroLineHeight() {
+        var selectedContent = editor.selection.getContent({
+          format: 'html'
+        });
+        if (selectedContent) {
+          var modifiedContent = selectedContent.replace(/<p.*?>/g, '<p style="line-height: 0;">');
+          editor.selection.setContent(modifiedContent);
+        }
+      }
+
+      // Add custom line height zero option to the toolbar
+      editor.ui.registry.addToggleButton('lineheightzero', {
+        text: 'zero',
+        onAction: setZeroLineHeight
+      });
+
       editor.on('keyup', function(e) {
         var content = editor.getContent({
           format: 'text'
@@ -640,11 +663,26 @@ $ids[] = $emp->id;
     tinymce.init({
       selector: '#editorContainer_' + editorId,
       plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown',
-      toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+      toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight lineheightzero | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
       tinycomments_mode: 'embedded',
       tinycomments_author: 'Author name',
       height: 550,
       setup: function(editor) {
+        function setZeroLineHeight() {
+          var selectedContent = editor.selection.getContent({
+            format: 'html'
+          });
+          if (selectedContent) {
+            var modifiedContent = selectedContent.replace(/<p.*?>/g, '<p style="line-height: 0;">');
+            editor.selection.setContent(modifiedContent);
+          }
+        }
+
+        // Add custom line height zero option to the toolbar
+        editor.ui.registry.addToggleButton('lineheightzero', {
+          text: 'zero',
+          onAction: setZeroLineHeight
+        });
         editor.on('keyup', function(e) {
           var content = editor.getContent({
             format: 'text'

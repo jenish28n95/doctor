@@ -105,7 +105,11 @@ use App\Models\Patientreport;
                         ?>
                         @foreach($patients as $index =>$patient)
                         <tr style="{{ ($patient->net_amount == ($patient->cash_amount + $patient->paytm_amount)) ? 'background-color: pink;' : 'background-color: orange;' }}">
-                           <td><input type="checkbox" class="checkbox" value="{{$patient->id}}" {{ $patient->is_slip == 1 ? 'checked' : '' }}></td>
+                           <td>
+                              @if($patient->mediclaim == 'No')
+                              <input type="checkbox" class="checkbox" value="{{$patient->id}}" {{ $patient->is_slip == 1 ? 'checked' : '' }}>
+                              @endif
+                           </td>
                            <td><a href="{{route('admin.patients.edit', $patient->id)}}" style="color: blue;">{{$patient->name}}</a></td>
                            <?php
                            $preports = Patientreport::where('patients_id', $patient->id)->get();

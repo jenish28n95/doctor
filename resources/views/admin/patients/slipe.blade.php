@@ -11,7 +11,7 @@ use App\Models\Childrtype;
 <div class="container">
   <table width="100%" style="border:1px solid #000;">
     <center>
-      <p style="font-size:22px;margin-top: -1px;">PRAMUKH SONOGRAPHY COLOR DOPPLER AND<br /> DIGITAL X-RAY CENTRE<br /><span style="font-size:10px;">104, 1st Floor, Shayona Complex,Jay Gangeshwar Society,Above Dairy don IceCream,Opp. Sargam Doctor House,<br />Hirabaug,Varachha Road,Surat-395006, M.8980640990</span></p>
+      <p style="font-size:22px;margin-top: -1px;">PRAMUKH SONOGRAPHY COLOR DOPPLER AND<br /> DIGITAL X-RAY CENTER<br /><span style="font-size:10px;">104, 1st Floor, Shayona Complex,Jay Gangeshwar Society,Above Dairy don IceCream,Opp. Sargam Doctor House,<br />Hirabaug,Varachha Road,Surat-395006, M.8980640990</span></p>
     </center>
     <div class="row" style="margin-top: -15px;">
       <div class="column-left">

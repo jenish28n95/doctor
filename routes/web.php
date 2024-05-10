@@ -74,6 +74,8 @@ Route::group(['middleware' => ['auth', 'usersession']], function () {
     Route::post('admin/import-doc-file', [AdminReportTypesController::class, 'storeDocFile'])->name('admin.import.file');
     Route::post('admin/update-payment-status', [AdminPatientsController::class, 'updatePaymentStatus'])->name('admin.update.payment');
 
+    Route::post('/admin/reportamount/update', [AdminPatientsController::class, 'updateReportAmount'])->name('admin.report-amount.update');
+
 
     Route::get("admin/doctors", [AdminDoctorsController::class, 'index'])->name('admin.doctors.index');
     Route::get('admin/doctors/create', [AdminDoctorsController::class, 'create'])->name('admin.doctors.create');

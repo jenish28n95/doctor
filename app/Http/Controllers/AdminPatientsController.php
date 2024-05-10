@@ -71,7 +71,7 @@ class AdminPatientsController extends Controller
             'name' => ['required', 'string', 'max:255'],
             // 'mobile' => 'required|numeric|digits:10',
             // 'investigation' => 'required',
-            'age' => 'required|integer|between:1,100',
+            'age' => 'required|between:1,100',
             'session' => 'required',
             'mediclaim' => 'required',
             'arrival_time' => 'required',
@@ -141,7 +141,7 @@ class AdminPatientsController extends Controller
             'name' => ['required', 'string', 'max:255'],
             // 'mobile' => 'required|numeric|digits:10',
             // 'investigation' => 'required',
-            'age' => 'required|integer|between:1,100',
+            'age' => 'required|between:1,100',
             'session' => 'required',
             'mediclaim' => 'required',
             'arrival_time' => 'required',
@@ -232,33 +232,43 @@ class AdminPatientsController extends Controller
 
         $htmlContent  = $request->editContent;
 
+        // dd($htmlContent);
+
         $htmlContent = '<div style="width: 90%; margin: 15% auto 0 auto;">' . $htmlContent . '</div>';
-        $htmlContent = str_replace('margin-left: 3in', 'margin-left: auto', $htmlContent);
+        $htmlContent = str_replace('margin-left: 0in', 'margin-left: auto;text-align:center;', $htmlContent);
         $htmlContent = str_replace('<table', '<table style="border-collapse: collapse; border-spacing: 0; padding: 0px;width:100%;"', $htmlContent);
         // $htmlContent = str_replace('border-left-style: double;', 'border-left-style: double;width:20%;', $htmlContent);
         // $htmlContent = str_replace('border-right-style: double;', 'border-right-style: double;width:15%;', $htmlContent);
 
         // dd($htmlContent);
 
-        $options = new Options();
-        $options->set('isPhpEnabled', true);
-        $dompdf = new Dompdf($options);
+        $data = [
+            'content' => $htmlContent,
+        ];
 
-        $dompdf->loadHtml($htmlContent);
+        $pdf = PDF::loadView('admin.patients.pdf-report', $data);
 
-        // Set paper size and orientation
-        $dompdf->setPaper('A4', 'portrait');
+        // $options = new Options();
+        // $options->set('isPhpEnabled', true);
+        // $dompdf = new Dompdf($options);
 
-        $dompdf->render();
+        // $dompdf->loadHtml($htmlContent);
+
+        // // Set paper size and orientation
+        // $dompdf->setPaper('A4', 'portrait');
+
+        // $dompdf->render();
 
         $rtypes = Rtype::where('id', $request->report_id)->first();
 
         // Generate PDF file name
-        $pdfFileName = str_replace(' ', '-', $patient->name) . '-' . str_replace(' ', '-', $rtypes->name) . '-' . Carbon::today()->format('Ymd') . '-' . time() . ".pdf";
+        $patientName = str_replace('/', '_', $patient->name);
+        $patientName = str_replace('', '-', $patientName);
+        $pdfFileName = addslashes($patientName) . '-' . str_replace(' ', '-', $rtypes->name) . '-' . Carbon::today()->format('Ymd') . '-' . time() . ".pdf";
 
         // Save the PDF content to a file
         $pdfFilePath = public_path('patientsdocs/' . $pdfFileName);
-        file_put_contents($pdfFilePath, $dompdf->output());
+        file_put_contents($pdfFilePath, $pdf->output());
 
         $data = new Patientreport;
         $data->patients_id = $request->patients_id;
@@ -508,25 +518,32 @@ class AdminPatientsController extends Controller
         // $htmlContent = str_replace('<table', '<table style="border-collapse: collapse; border-spacing: 0; padding: 0px;width:100%;"', $htmlContent);
         // $htmlContent = str_replace('<td style="', '<td style="border: 1px solid #000; padding: 0;"', $htmlContent);
 
-        $options = new Options();
-        $options->set('isPhpEnabled', true);
-        $dompdf = new Dompdf($options);
+        $data = [
+            'content' => $htmlContent,
+        ];
 
-        $dompdf->loadHtml($htmlContent);
+        $pdf = PDF::loadView('admin.patients.pdf-report', $data);
 
-        // Set paper size and orientation
-        $dompdf->setPaper('A4', 'portrait');
+        // $options = new Options();
+        // $options->set('isPhpEnabled', true);
+        // $dompdf = new Dompdf($options);
 
-        $dompdf->render();
+        // $dompdf->loadHtml($htmlContent);
+
+        // // Set paper size and orientation
+        // $dompdf->setPaper('A4', 'portrait');
+
+        // $dompdf->render();
 
         $rtypes = Rtype::where('id', $patientreport->report_id)->first();
 
-        // Generate PDF file name
-        $pdfFileName = str_replace(' ', '-', $patient->name) . '-' . str_replace(' ', '-', $rtypes->name) . '-' . Carbon::today()->format('Ymd') . '-' . time() . ".pdf";
+        $patientName = str_replace('/', '_', $patient->name);
+        $patientName = str_replace('', '-', $patientName);
+        $pdfFileName = addslashes($patientName) . '-' . str_replace(' ', '-', $rtypes->name) . '-' . Carbon::today()->format('Ymd') . '-' . time() . ".pdf";
 
         // Save the PDF content to a file
         $pdfFilePath = public_path('patientsdocs/' . $pdfFileName);
-        file_put_contents($pdfFilePath, $dompdf->output());
+        file_put_contents($pdfFilePath, $pdf->output());
 
         Patientreport::where('id', $patientreport->id)
             ->update(['report_content' => $htmlContent, 'file' => $pdfFileName]);
@@ -738,19 +755,34 @@ class AdminPatientsController extends Controller
             $content = str_replace("{patage}", '&nbsp;' . $age, $content);
             $content = str_replace("{refdoctor}", '&nbsp;' . $doctorname, $content);
             $content = str_replace("{pat-date}", '&nbsp;' . $date, $content);
-            $content = preg_replace('/<p>&nbsp;<\/p>/', '', $content);
+            $content = str_replace("patname", '&nbsp;' . $pname, $content);
+            $content = str_replace("patage", '&nbsp;' . $age, $content);
+            $content = str_replace("refdoctor", '&nbsp;' . $doctorname, $content);
+            $content = str_replace("pat-date", '&nbsp;' . $date, $content);
+            $content = str_replace("{", '', $content);
+            $content = str_replace("}", '', $content);
+            // $content = preg_replace('/<p>&nbsp;<\/p>/', '', $content);
             $content = str_replace('bgcolor="#auto"', '', $content);
             $content = str_replace('margin-left: 3in', 'margin-left: 0in', $content);
-            $content = str_replace('margin-left: 1134in', 'margin-left: 3in', $content);
-            $content = str_replace('margin-left: 1440in', 'margin-left: 3in', $content);
-            $content = str_replace('margin-left: 1080in', 'margin-left: 3in', $content);
-            $content = str_replace('margin-left: 1620in', 'margin-left: 3in', $content);
-            $content = str_replace('margin-left: 540in', 'margin-left: 3in', $content);
-            $content = str_replace('margin-left: 720in', 'margin-left: 3in', $content);
-            $content = str_replace('margin-left: 180in', 'margin-left: 3in', $content);
-            $content = str_replace('margin-left: 360in', 'margin-left: 3in', $content);
-            $content = str_replace('margin-left: 1800in', 'margin-left: 3in', $content);
-            $content = str_replace('</style>', 'p {padding:0pt; line-height: 1;}</style>', $content);
+            $content = str_replace('margin-left: 1134in', 'margin-left: 0in', $content);
+            $content = str_replace('margin-left: 1440in', 'margin-left: 0in', $content);
+            $content = str_replace('margin-left: 1080in', 'margin-left: 0in', $content);
+            $content = str_replace('margin-left: 1620in', 'margin-left: 0in', $content);
+            $content = str_replace('margin-left: 540in', 'margin-left: 0in', $content);
+            $content = str_replace('margin-left: 720in', 'margin-left: 0in', $content);
+            $content = str_replace('margin-left: 180in', 'margin-left: 0in', $content);
+            $content = str_replace('margin-left: 360in', 'margin-left: 0in', $content);
+            $content = str_replace('margin-left: 1800in', 'margin-left: 0in', $content);
+            // if ($rid == 3 || $rid == 2) {
+            $content = str_replace('</style>', 'p {margin: 0; padding:0; line-height: 0;}</style>', $content);
+            // }
+            // if ($rid != 3 && $rid != 2) {
+            $content = str_replace('<p>', '<p style="margin-top:0px;margin-bottom:0px;">', $content);
+            // }
+            $content = str_replace('<table', '<table style="border-collapse: collapse; border-spacing: 0; padding: 0px;width:100%;border: 2px solid #000000"', $content);
+            $content = str_replace('<tr', '<tr style="border: 2px solid #000000"', $content);
+            $content = str_replace('<td', '<td style="border: 2px solid #000000"', $content);
+            // $content = str_replace('</style>', 'p {line-height: 0;}</style>', $content);
             $content = str_replace('<p><span style="font-family: \'Verdana\';">', '<span style="font-family: \'Verdana\';">', $content);
             $content = str_replace('<p><span style="font-family: \'Verdana\'; font-size: 11pt; font-weight: bold;', '<span style="font-family: \'Verdana\'; font-size: 11pt; font-weight: bold;', $content);
             $content = str_replace('<p><span style="font-family: \'Times New Roman\'; font-size: 12pt; font-weight: bold;">', '<span style="font-family: \'Times New Roman\'; font-size: 12pt; font-weight: bold;">', $content);
@@ -758,20 +790,67 @@ class AdminPatientsController extends Controller
             $content = str_replace('<p><span style="font-family: \'Verdana\'; font-size: 11pt;">', '<span style="font-family: \'Verdana\'; font-size: 11pt;">', $content);
             $content = str_replace('<p style="text-align: justify;"><span style="font-size: 11pt;">', '<span style="font-size: 11pt;">', $content);
             $content = str_replace('<p style="text-align: justify;"><span style="font-size: 11pt; font-weight: bold;">', '<span style="font-size: 11pt; font-weight: bold;">', $content);
+            $content = str_replace('<p style="text-align: justify;"><span style="font-family: \'Verdana\';', '<p style="text-align: justify;"><span style="font-family: \'Verdana\';margin-top:0px;margin-bottom:0px;', $content);
+            $content = str_replace('<h3>', '<h3 style="text-align:center;text-decoration:underline;">', $content);
+            // if (in_array($childid, [12, 13, 15, 62, 7, 9, 23, 24, 35])) {
+            $content = str_replace('<p style="text-align: justify;', '<p style="text-align: justify;margin-top:0px;margin-bottom:0px;', $content);
+            // }
+            // $content = str_replace('IMPRESSION', '<br/>IMPRESSION', $content);
 
-
-            // $content = str_replace('<p><span', '<span', $content);
-            // $content = str_replace('<p style="text-align: justify;"><span style="font-weight: bold;">', '<span style="font-weight: bold;">', $content);
-            // $content = str_replace('<p style="text-align: justify;"><span style=', '<span style=', $content);
-            // $content = str_replace('<p style="text-align: justify;">', '', $content);
             $content = preg_replace('/<\/p>/', '', $content);
-            // $content = str_replace("<div style='page: page1'>", "\n<p></p>\n<p></p>\n<p></p>\n<p></p>\n<div style='page: page1'>", $content);
-            // $content = trim($content);
 
             return response()->json(['content' => $content]);
         } else {
             return response()->json(['error' => 'File not found'], Response::HTTP_NOT_FOUND);
         }
+    }
+
+    public function updateReportAmount(Request $request)
+    {
+        // dd($request->p_report_id);
+        // dd($request->amount);
+
+        Patientreport::where('id', $request->p_report_id)->update(['amount' => $request->amount]);
+
+        $patient_r_id = Patientreport::where('id', $request->p_report_id)->first();
+
+        $patient = Patient::where('id', $patient_r_id->patients_id)->first();
+
+        $total = 0;
+        $reports = Patientreport::where('patients_id', $patient_r_id->patients_id)->get();
+        foreach ($reports as $report) {
+            $total += $report->amount;
+        }
+
+        $patient->basic_amount = $total;
+        $patient->save();
+
+        if ($patient->discount_type == 'per') {
+            $result = ($patient->discount / 100) * ($patient->basic_amount);
+        }
+        if ($patient->discount_type == 'fix') {
+            $result = $patient->discount;
+        }
+        $patient->discount_amount = $result;
+        $patient->net_amount = ($patient->basic_amount) - $result;
+        $patient->save();
+
+        $cash = isset($patient->cash_amount) ? $patient->cash_amount : 0;
+        $paytm = isset($patient->paytm_amount) ? $patient->paytm_amount : 0;
+        $pay = $cash + $paytm;
+        $balance = ($patient->net_amount) - ($cash + $paytm);
+
+        if ($patient->net_amount == $pay) {
+            $payment = 'done';
+        } else {
+            $payment = 'pending';
+        }
+
+        $patient->balance = $balance;
+        $patient->payment = $payment;
+        $patient->save();
+
+        return Redirect::back();
     }
 
     public function downloadSlip(Request $request)
