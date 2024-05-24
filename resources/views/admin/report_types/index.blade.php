@@ -71,7 +71,9 @@
 @section('script')
 <script>
    $(document).ready(function() {
-      $("#reportTable").DataTable();
+      $("#reportTable").DataTable({
+         "pageLength": 25
+      });
    });
 </script>
 @endsection

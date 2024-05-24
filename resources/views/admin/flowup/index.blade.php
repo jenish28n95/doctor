@@ -124,7 +124,9 @@ use App\Models\Patientreport;
 @section('script')
 <script>
    $(document).ready(function() {
-      $("#flowuppatientTable").DataTable();
+      $("#flowuppatientTable").DataTable({
+         "pageLength": 25
+      });
    });
 </script>
 @endsection

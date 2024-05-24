@@ -100,7 +100,9 @@ use App\Models\Patient;
 @section('script')
 <script>
    $(document).ready(function() {
-      $("#doctoreTable").DataTable();
+      $("#doctoreTable").DataTable({
+         "pageLength": 25
+      });
    });
 </script>
 @endsection

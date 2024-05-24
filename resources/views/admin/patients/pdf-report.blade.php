@@ -36,7 +36,7 @@
 
     .content {
       width: 90%;
-      margin-top: -100px;
+      margin-top: -120px;
       margin-left: auto;
       margin-right: auto;
       /* Adjust to match header height */

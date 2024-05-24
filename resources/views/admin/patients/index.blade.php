@@ -289,7 +289,9 @@ use App\Models\Patientreport;
 <script src="{{asset('js/jquery-ui.js')}}"></script>
 <script>
    $(document).ready(function() {
-      $("#patientTable").DataTable();
+      $("#patientTable").DataTable({
+         "pageLength": 25
+      });
 
       $("#start_date").datepicker({
          dateFormat: 'yy-mm-dd', // Set the date format

@@ -1,3 +1,8 @@
+<?php
+
+use App\Models\Patientreport;
+?>
+
 @extends('layouts.admin')
 @section('content')
 <!-- Content Wrapper. Contains page content -->
@@ -49,7 +54,15 @@
                         @foreach($childrtypes as $index =>$rtype)
                         <td>
                            <a href="{{route('admin.child_report_types.edit', $rtype->id)}}"><i class="fa fa-edit" style="font-size:15px;background-color:rgba(255, 255, 255, 0.25);padding:8px;"></i></a>
-                           <!-- <a href="{{route('admin.child_report_types.destroy', $rtype->id)}}" onclick="return confirm('Sure ! You want to delete reocrd ?');"><i class="fa fa-trash" style="font-size:15px;background-color:rgba(255, 255, 255, 0.25);padding:8px;"></i></a> -->
+                           <?php
+                           $count = 0;
+                           $count = Patientreport::where('childreport_id', $rtype->id)->count();
+                           if ($count > 0) { ?>
+
+                           <?php } else { ?>
+                              <a href="{{route('admin.child_report_types.destroy', $rtype->id)}}" onclick="return confirm('Sure ! You want to delete reocrd ?');"><i class="fa fa-trash" style="font-size:15px;background-color:rgba(255, 255, 255, 0.25);padding:8px;"></i></a>
+                           <?php }  ?>
+
                         </td>
                         <td>{{$rtype->rtypes->name}}</td>
                         <td>{{$rtype->name}}</td>
@@ -75,7 +88,9 @@
 @section('script')
 <script>
    $(document).ready(function() {
-      $("#childReportTable").DataTable();
+      $("#childReportTable").DataTable({
+         "pageLength": 25
+      });
    });
 </script>
 @endsection

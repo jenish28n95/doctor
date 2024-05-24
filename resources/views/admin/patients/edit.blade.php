@@ -48,6 +48,10 @@ use App\Models\Childrtype;
   .remove-bottom-space {
     margin-bottom: 0px;
   }
+
+  .tox .tox-notification--in {
+    opacity: 0 !important;
+  }
 </style>
 @endsection
 @section('content')
@@ -559,8 +563,10 @@ $ids[] = $emp->id;
 
 
 <!-- Place the first <script> tag in your HTML's <head> -->
-<script src="https://cdn.tiny.cloud/1/jxh191odi9urfty7n2hd4ksrfwslpp3pg6hajep17wimfq6k/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
-
+<!-- <script src="https://cdn.tiny.cloud/1/jxh191odi9urfty7n2hd4ksrfwslpp3pg6hajep17wimfq6k/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script> -->
+<!-- <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script> -->
+<!-- <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script> -->
+<script src="{{asset('js/tinymce.min.js')}}"></script>
 <!-- Place the following <script> and <textarea> tags your HTML's <body> -->
 <script>
   tinymce.init({
@@ -633,12 +639,54 @@ $ids[] = $emp->id;
     var editor = tinymce.get('editContent');
     var content = editor.getContent(); // Get current content
     var match = content.match(/\^(\w+)/);
+    var caretPosition = content.indexOf('^');
+    // alert(caretPosition);
     if (match) {
       var searchTerm = match[0];
       var newText = content.replace(searchTerm, value);
       editor.setContent(newText);
+      // alert(value.length);
+      // var length = value.length;
+      // var length = editor.getContent().length;
+      // editor.selection.select(editor.getBody(), true);
+      // editor.selection.collapse(false);
+
+      var replacedLength = caretPosition;
+      var newLength = value.length;
+      var cursorPosition = replacedLength + newLength;
+
+      setCursorPosition(2000)
+
     }
   }
+
+  function setCursorPosition(position) {
+    var editor = tinymce.get('editContent');
+    var body = editor.getBody();
+
+    // Create a range object
+    var range = editor.dom.createRng();
+
+    // Set the range to the desired position
+    range.setStart(body.firstChild, position);
+    range.setEnd(body.firstChild, position);
+
+    // Set the selection with the range
+    editor.selection.setRng(range);
+  }
+
+  // function setCursorPosition(position) {
+  //   // alert(position);
+  //   var editor = tinymce.get('editContent');
+  //   var body = editor.getContent();
+
+  //   alert(position);
+
+  //   // Ensure position is within the content length
+  //   if (position >= 0 && position <= body.length) {
+  //     editor.selection.setCursorLocation(body, position);
+  //   }
+  // }
 </script>
 
 
