@@ -70,6 +70,12 @@ use App\Models\Patientreport;
                         <option value="Morning" {{ request()->session == 'Morning' ? 'selected' : ''}}>Morning</option>
                         <option value="Evening" {{ request()->session == 'Evening' ? 'selected' : ''}}>Evening</option>
                      </select>
+                     <select name="ref_doctor" id="ref_doctor" class="border border-dark" onchange="return this.form.submit();">
+                        <option value="all" {{ request()->ref_doctor == 'all' ? 'selected' : ''}}>All Ref. Doctors</option>
+                        @foreach($doctors as $doctor)
+                        <option value="{{$doctor->id}}" {{ request()->ref_doctor == $doctor->id ? 'selected' : '' }}>{{$doctor->name}}{{isset($doctor->degree) ? '-'.$doctor->degree : ''}}</option>
+                        @endforeach
+                     </select>
                      <!-- <button type="submit" class="fa fa-search bg-default text-white"></button> -->
                      {!! Form::close() !!}
                   </div>

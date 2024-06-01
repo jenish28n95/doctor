@@ -34,17 +34,62 @@ class AdminPatientsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    // public function index(Request $request)
+    // {
+    //     $patients = Patient::where('f_year', Session::get('setfinancialyear'))->whereDate('created_at', Carbon::today())->get();
+    //     $doctors = Doctor::get();
+    //     if (isset($request->start_date) && isset($request->end_date) && isset($request->session)) {
+    //         if ($request->session != 'all') {
+    //             if ($request->ref_doctor != 'all') {
+    //                 $patients = Patient::where('f_year', Session::get('setfinancialyear'))->whereDate('created_at', '>=', $request->start_date)->whereDate('created_at', '<=', $request->end_date)->where('session', $request->session)->where('doctors_id', $request->ref_doctor)->orderBy('id', 'DESC')->get();
+    //             } else {
+    //                 $patients = Patient::where('f_year', Session::get('setfinancialyear'))->whereDate('created_at', '>=', $request->start_date)->whereDate('created_at', '<=', $request->end_date)->where('session', $request->session)->orderBy('id', 'DESC')->get();
+    //             }
+    //         } else {
+    //             if ($request->ref_doctor != 'all') {
+    //                 $patients = Patient::where('f_year', Session::get('setfinancialyear'))->whereDate('created_at', '>=', $request->start_date)->whereDate('created_at', '<=', $request->end_date)->where('doctors_id', $request->ref_doctor)->orderBy('id', 'DESC')->get();
+    //             } else {
+    //                 $patients = Patient::where('f_year', Session::get('setfinancialyear'))->whereDate('created_at', '>=', $request->start_date)->whereDate('created_at', '<=', $request->end_date)->orderBy('id', 'DESC')->get();
+    //             }
+    //         }
+    //     }
+    //     return view('admin.patients.index', compact('patients', 'doctors'));
+    // }
+
     public function index(Request $request)
     {
-        $patients = Patient::where('f_year', Session::get('setfinancialyear'))->whereDate('created_at', Carbon::today())->get();
-        if (isset($request->start_date) && isset($request->end_date) && isset($request->session)) {
-            if ($request->session != 'all') {
-                $patients = Patient::where('f_year', Session::get('setfinancialyear'))->whereDate('created_at', '>=', $request->start_date)->whereDate('created_at', '<=', $request->end_date)->where('session', $request->session)->orderBy('id', 'DESC')->get();
-            } else {
-                $patients = Patient::where('f_year', Session::get('setfinancialyear'))->whereDate('created_at', '>=', $request->start_date)->whereDate('created_at', '<=', $request->end_date)->orderBy('id', 'DESC')->get();
-            }
+        // Get the initial patients query
+        $patientsQuery = Patient::where('f_year', Session::get('setfinancialyear'));
+
+        // Default to today's patients if no date filters are provided
+        if (!$request->has(['start_date', 'end_date'])) {
+            $patientsQuery->whereDate('created_at', Carbon::today());
         }
-        return view('admin.patients.index', compact('patients'));
+
+        // Check for date filters
+        if ($request->has('start_date') && $request->has('end_date')) {
+            $patientsQuery->whereDate('created_at', '>=', $request->start_date)
+                ->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        // Check for session filter
+        if ($request->has('session') && $request->session != 'all') {
+            $patientsQuery->where('session', $request->session);
+        }
+
+        // Check for doctor filter
+        if ($request->has('ref_doctor') && $request->ref_doctor != 'all') {
+            $patientsQuery->where('doctors_id', $request->ref_doctor);
+        }
+
+        // Get the filtered patients list
+        $patients = $patientsQuery->orderBy('id', 'ASC')->get();
+
+        // Get all doctors
+        $doctors = Doctor::all();
+
+        // Return the view with patients and doctors
+        return view('admin.patients.index', compact('patients', 'doctors'));
     }
 
     /**

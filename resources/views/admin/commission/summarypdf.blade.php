@@ -37,8 +37,11 @@ use App\Models\Patient;
       $total = 0;
       foreach ($doctors as $doctor) {
         $sum = 0;
-        $patients = $data->where('doctors_id', $doctor->id);
+        $patients = Patient::where('doctors_id', $doctor->id)->get();
         $count = count($patients);
+        if ($count == 0) {
+          continue;
+        }
         $charges = 0;
         $discount = 0;
         foreach ($patients as $patient) {
@@ -60,7 +63,8 @@ use App\Models\Patient;
           <td align='right' style="font-size:10px;">{{$sum}}</td>
         </tr>
       <?php $i++;
-      } ?>
+      }
+      die(); ?>
       <tr>
         <td></td>
         <td></td>

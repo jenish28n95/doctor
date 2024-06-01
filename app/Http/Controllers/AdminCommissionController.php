@@ -224,6 +224,7 @@ class AdminCommissionController extends Controller
 
 
             $data = $wallet->get();
+
             $data_count = $wallet->count();
 
             if (isset($data) && $data_count != 0) {

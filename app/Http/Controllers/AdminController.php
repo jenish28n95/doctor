@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use PDF;
 use App\Models\User;
 use App\Models\Doctor;
 use App\Models\Patient;
@@ -234,6 +235,228 @@ class AdminController extends Controller
 
         return redirect()->back()->with("success", "Password changed successfully !");
     }
+
+    public function investigation(Request $request)
+    {
+        $f_year = Session::get('setfinancialyear');
+        list($start_year, $end_year) = explode('-', $f_year);
+
+        $start_date = Carbon::create($start_year, 4, 1);
+
+        $end_date = Carbon::now()->endOfMonth();
+
+        $period = $start_date->monthsUntil($end_date);
+
+        list($start_year, $end_year) = explode('-', $f_year);
+
+        $monthlist = [];
+        foreach ($period->toArray() as $date) {
+            $monthlist[] = [
+                'month' => Carbon::parse($date)->shortMonthName,
+                'year' => Carbon::parse($date)->year,
+            ];
+        }
+
+        $monthlist = array_reverse($monthlist); // Reverse the array
+
+        $months = [];
+        $monthpatientNumbers = [];
+
+        if ($request->has('ref_doctor') && $request->ref_doctor != 'all') {
+
+            $financialYearStart = Carbon::createFromDate($start_year, 4, 1)->startOfMonth();
+            $financialYearEnd = Carbon::createFromDate($end_year, 3, 31)->endOfMonth();
+
+            $patientCounts = Patient::where('doctors_id', $request->ref_doctor)->whereBetween('created_at', [$financialYearStart, $financialYearEnd])
+                ->orderBy('created_at')
+                ->get()
+                ->groupBy(function ($date) {
+                    return Carbon::parse($date->created_at)->format('M'); // Group by month
+                })
+                ->map(function ($item) {
+                    return count($item); // Count patients for each month
+                });
+
+            $currentMonth = $financialYearStart->copy();
+            while ($currentMonth <= $financialYearEnd) {
+                $months[] = $currentMonth->format('M');
+                $monthpatientNumbers[] = $patientCounts[$currentMonth->format('M')] ?? 0;
+                $currentMonth->addMonth();
+            }
+        }
+
+        $f_years = Financialyear::get();
+        $doctors = Doctor::all();
+
+        return view('admin.investigation.index', compact('f_years', 'monthlist', 'doctors', 'months', 'monthpatientNumbers'));
+    }
+
+    public function viewInvestigationPDF(Request $request)
+    {
+        $PatientQuery = Patient::query();
+        if ($request->has('date_range')) {
+            $dateRange = $request->input('date_range');
+            switch ($dateRange) {
+                case 'month':
+                    $selectedMonth = $request->input('custom_month_dropdown');
+                    [$monthName, $year] = explode('-', $selectedMonth);
+
+                    $monthMap = [
+                        'Jan' => 1, 'Feb' => 2, 'Mar' => 3, 'Apr' => 4,
+                        'May' => 5, 'Jun' => 6, 'Jul' => 7, 'Aug' => 8,
+                        'Sep' => 9, 'Oct' => 10, 'Nov' => 11, 'Dec' => 12
+                    ];
+
+                    $month = $monthMap[$monthName];
+
+                    $startOfMonth = Carbon::createFromDate($year, $month, 1)->startOfMonth();
+                    $endOfMonth = Carbon::createFromDate($year, $month, 1)->endOfMonth();
+                    $PatientQuery->whereDate('created_at', '>=', $startOfMonth)->whereDate('created_at', '<=', $endOfMonth);
+                    $name = $selectedMonth;
+                    break;
+                case 'custom_month':
+                    $startMonth = $request->start_date;
+                    $endMonth = $request->end_date;
+                    $PatientQuery->whereDate('created_at', '>=', $startMonth)->whereDate('created_at', '<=', $endMonth);
+                    $s_date = Carbon::parse($startMonth)->format('d/m/Y');
+                    $e_date = Carbon::parse($endMonth)->format('d/m/Y');
+                    $name = $s_date . ' To ' . $e_date;
+                    break;
+                case 'custom_year':
+                    $PatientQuery->whereYear('created_at', $request->select_year);
+                    $year = $request->select_year;
+
+                    $data = $PatientQuery->orderBy('created_at', 'asc')
+                        ->get()
+                        ->groupBy(function ($item) {
+                            return Carbon::parse($item->created_at)->format('F Y');
+                        });
+
+                    $data_count = count($data);
+                    if ($data_count != 0) {
+                        $pdf = PDF::loadView('admin.investigation.monthlypdf', compact('data'));
+                        $pdfContent = $pdf->output();
+
+                        return response($pdfContent)
+                            ->header('Content-Type', 'application/pdf')
+                            ->header('Content-Disposition', 'inline; filename="monthly_report.pdf"');
+                    }
+
+                    return redirect()->back()->with('success', "0 Record found");
+
+                    $zipName = "Financial year $year";
+
+                    break;
+                default:
+                    // Handle invalid date range
+                    return redirect()->back()->with('error', "Please select a valid date range");
+            }
+            $data = $PatientQuery->orderBy('created_at', 'asc')
+                ->get()
+                ->groupBy(function ($item) {
+                    return Carbon::parse($item->created_at)->format('d/m/Y');
+                });
+
+            $data_count = count($data);
+            if (isset($data) && $data_count != 0) {
+                $pdf = PDF::loadView('admin.investigation.datewisepdf', compact('data', 'name'));
+                $pdfContent = $pdf->output();
+                return response($pdfContent)
+                    ->header('Content-Type', 'application/pdf')
+                    ->header('Content-Disposition', 'inline; filename="preview.pdf"');
+            }
+            return redirect()->back()->with('success', "0 Record found");
+        } else {
+            return redirect()->back()->with('error', "Please select valid options");
+        }
+        return redirect()->back()->with('success', "0 Record found");
+    }
+
+
+    public function downloadInvestigationPDF(Request $request)
+    {
+        $PatientQuery = Patient::query();
+        if ($request->has('date_range')) {
+            $dateRange = $request->input('date_range');
+            switch ($dateRange) {
+                case 'month':
+                    $selectedMonth = $request->input('custom_month_dropdown');
+                    [$monthName, $year] = explode('-', $selectedMonth);
+
+                    $monthMap = [
+                        'Jan' => 1, 'Feb' => 2, 'Mar' => 3, 'Apr' => 4,
+                        'May' => 5, 'Jun' => 6, 'Jul' => 7, 'Aug' => 8,
+                        'Sep' => 9, 'Oct' => 10, 'Nov' => 11, 'Dec' => 12
+                    ];
+
+                    $month = $monthMap[$monthName];
+
+                    $startOfMonth = Carbon::createFromDate($year, $month, 1)->startOfMonth();
+                    $endOfMonth = Carbon::createFromDate($year, $month, 1)->endOfMonth();
+                    $PatientQuery->whereDate('created_at', '>=', $startOfMonth)->whereDate('created_at', '<=', $endOfMonth);
+                    $name = $selectedMonth;
+                    break;
+                case 'custom_month':
+                    $startMonth = $request->start_date;
+                    $endMonth = $request->end_date;
+                    $PatientQuery->whereDate('created_at', '>=', $startMonth)->whereDate('created_at', '<=', $endMonth);
+                    $s_date = Carbon::parse($startMonth)->format('d/m/Y');
+                    $e_date = Carbon::parse($endMonth)->format('d/m/Y');
+                    $name = $s_date . ' To ' . $e_date;
+                    break;
+                case 'custom_year':
+                    $PatientQuery->whereYear('created_at', $request->select_year);
+                    $year = $request->select_year;
+
+                    $data = $PatientQuery->orderBy('created_at', 'asc')
+                        ->get()
+                        ->groupBy(function ($item) {
+                            return Carbon::parse($item->created_at)->format('F Y');
+                        });
+
+                    $data_count = count($data);
+                    if ($data_count != 0) {
+                        $pdf = PDF::loadView('admin.investigation.monthlypdf', compact('data'));
+
+                        $zipName = "Financial year $year";
+
+                        return $pdf->download($zipName . '.pdf');
+                        // $pdfContent = $pdf->output();
+
+                        // return response($pdfContent)
+                        //     ->header('Content-Type', 'application/pdf')
+                        //     ->header('Content-Disposition', 'inline; filename="monthly_report.pdf"');
+                    }
+
+                    break;
+                default:
+                    // Handle invalid date range
+                    return redirect()->back()->with('error', "Please select a valid date range");
+            }
+            $data = $PatientQuery->orderBy('created_at', 'asc')
+                ->get()
+                ->groupBy(function ($item) {
+                    return Carbon::parse($item->created_at)->format('d/m/Y');
+                });
+
+            $data_count = count($data);
+            if (isset($data) && $data_count != 0) {
+                $pdf = PDF::loadView('admin.investigation.datewisepdf', compact('data', 'name'));
+
+                return $pdf->download($name . '.pdf');
+                // $pdfContent = $pdf->output();
+
+                // return response($pdfContent)
+                //     ->header('Content-Type', 'application/pdf')
+                //     ->header('Content-Disposition', 'inline; filename="preview.pdf"');
+            }
+            return redirect()->back()->with('success', "0 Record found");
+        } else {
+            return redirect()->back()->with('error', "Please select valid options");
+        }
+        return redirect()->back()->with('success', "0 Record found");
+    }
+
 
     /**
      * Display a listing of the resource.

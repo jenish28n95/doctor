@@ -144,6 +144,10 @@ Route::group(['middleware' => ['auth', 'usersession']], function () {
     Route::post('/admin/slip-pdf-download', [AdminSlipsController::class, 'downloadSummarySlipPdf'])->name('admin.slip-pdf.download');
 
     Route::get("admin/flowup", [AdminFlowupController::class, 'index'])->name('admin.flowup.index');
+
+    Route::get("admin/investigation", [AdminController::class, 'investigation'])->name('admin.investigation.report');
+    Route::post("admin/investigation-pdf", [AdminController::class, 'viewInvestigationPDF'])->name('admin.investigation-pdf.report');
+    Route::post("admin/investigation-download", [AdminController::class, 'downloadInvestigationPDF'])->name('admin.investigation-download.report');
 });
 
 //Clear Cache facade value:
