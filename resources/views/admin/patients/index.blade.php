@@ -94,9 +94,10 @@ use App\Models\Patientreport;
                            <th>Arrival Time</th>
                            <th>Discount</th>
                            <th>Balance</th>
+                           <th>Net Amount</th>
+                           <th>Payment Mode</th>
                            <th>Slip</th>
                            <th>Action</th>
-                           <!-- <th>Net Amount</th> -->
                            <!-- <th>Status</th> -->
                            <!-- <th>Payment Mode</th> -->
                         </tr>
@@ -139,12 +140,14 @@ use App\Models\Patientreport;
                            <td>{{$patient->sex}}</td>
                            <td>{{$patient->doctors->name}}</td>
                            <td>{{$patient->arrival_time}}</td>
+                           <td>{{$patient->payment_mode}}</td>
                            <td>
                               @if($patient->discount != '' || $patient->discount != 0 || $patient->discount != Null)
                               {{$patient->discount}}&nbsp;{{($patient->discount_type == 'per') ? '%' : 'Rs.';}}
                               @endif
                            </td>
                            <td>{{isset($patient->balance) ? $patient->balance : ''}}</td>
+                           <td>{{$patient->net_amount}}</td>
                            <td>
                               <?php
                               $getdetail = Slip::where('patients_id', $patient->id)->first();
@@ -160,7 +163,6 @@ use App\Models\Patientreport;
                               <p style="font-size:8px">Slip Generated</p>
                               @endif
                            </td>
-                           <!-- <td>{{$patient->net_amount}}</td> -->
                            <!-- <td>{{$patient->payment}}</td> -->
                            <!-- <td>{{$patient->payment_mode}}</td> -->
                         </tr>

@@ -7,6 +7,13 @@ use App\Models\Childrtype;
 use App\Models\Patientreport;
 ?>
 @extends('layouts.admin')
+@section('style')
+<style>
+  .select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: blueviolet !important;
+  }
+</style>
+@endsectoion
 @section('content')
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
@@ -45,11 +52,10 @@ use App\Models\Patientreport;
               <div class="form-group">
                 <label for="doctor" class="col-sm-2 control-label">Doctors</label>
                 <div class="col-sm-4">
-                  <select name="doctor" id="doctor" class="custom-select form-control form-control-rounded" required>
-                    <option value="">Select</option>
-                    <option value="all" {{ request()->doctor == 'all' ? 'selected' : ''}}>All</option>
+                  <select class="form-control" id="doctor-select" name="doctor[]" multiple="multiple">
+                    <option value="all">All</option>
                     @foreach ($doctors as $doctor)
-                    <option value="{{$doctor->id}}" {{ request()->doctor == $doctor->id ? 'selected' : ''}}>{{$doctor->name}}</option>
+                    <option value="{{$doctor->id}}">{{$doctor->name}}</option>
                     @endforeach
                   </select>
                   @if($errors->has('doctor'))
@@ -181,6 +187,48 @@ use App\Models\Patientreport;
       // Submit the form
       form.submit();
     });
+  });
+</script>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+  $(document).ready(function() {
+    // Initialize Select2
+    $('#doctor-select').select2({
+      placeholder: "Select Doctors",
+      closeOnSelect: false // Prevent dropdown from closing when selecting an option
+    });
+
+    // Handle "Select All" functionality
+    $('#doctor-select').on('select2:select', function(e) {
+      if (e.params.data.id === 'all') {
+        $('#doctor-select').val($('#doctor-select option').map(function() {
+          return this.value === 'all' ? null : this.value;
+        }).get()).trigger('change');
+      }
+    });
+
+    // Deselect "All" if any other option is deselected
+    $('#doctor-select').on('select2:unselect', function(e) {
+      if (e.params.data.id === 'all') {
+        $('#doctor-select').val(null).trigger('change');
+      } else {
+        let values = $('#doctor-select').val();
+        if (values && values.includes('all')) {
+          $('#doctor-select').val(values.filter(value => value !== 'all')).trigger('change');
+        }
+      }
+    });
+
+    // Preselect options based on the hidden input value
+    let selectedDoctors = "{{ implode(',', request()->doctor ?? []) }}".split(',');
+    $('#doctor-select').val(selectedDoctors).trigger('change');
   });
 </script>
 @endsection

@@ -39,6 +39,22 @@ use App\Models\Patientreport;
         <th style="font-size:12px;font-weight:bold;text-align:center;">Total</th>
       </tr>
     </thead>
+    <?php
+    $t_xray = 0;
+    $t_sonography = 0;
+    $t_doppler = 0;
+    $t_procedure = 0;
+    $t_special = 0;
+    $t_USG = 0;
+    $t_xray_a = 0;
+    $t_sonography_a = 0;
+    $t_doppler_a = 0;
+    $t_procedure_a = 0;
+    $t_special_a = 0;
+    $t_discount = 0;
+    $t_USG_a = 0;
+    $t_total = 0;
+    ?>
     @foreach($data as $key=>$dats)
     <?php
     $total = 0;
@@ -113,7 +129,41 @@ use App\Models\Patientreport;
         <td align='right' style="font-size:10px;">{{$total}}</td>
       </tr>
     </tbody>
+    <?php
+    $t_xray += $xray;
+    $t_sonography += $sonography;
+    $t_doppler += $doppler;
+    $t_procedure += $procedure;
+    $t_special += $special;
+    $t_USG += $USG;
+    $t_xray_a += $xray_a;
+    $t_sonography_a += $sonography_a;
+    $t_doppler_a += $doppler_a;
+    $t_procedure_a += $procedure_a;
+    $t_special_a += $special_a;
+    $t_USG_a += $USG_a;
+    $t_discount += $discount;
+    $t_total += $total;
+    ?>
     @endforeach
+    <tr style="border-top:1px solid #000">
+      <td align='center' style="font-size:10px;">
+      </td>
+      <td align='right' style="font-size:10px;">{{$t_xray}}</td>
+      <td align='right' style="font-size:10px;">{{$t_xray_a}}</td>
+      <td align='right' style="font-size:10px;">{{$t_sonography}}</td>
+      <td align='right' style="font-size:10px;">{{$t_sonography_a}}</td>
+      <td align='right' style="font-size:10px;">{{$t_doppler}}</td>
+      <td align='right' style="font-size:10px;">{{$t_doppler_a}}</td>
+      <td align='right' style="font-size:10px;">{{$t_procedure}}</td>
+      <td align='right' style="font-size:10px;">{{$t_procedure_a}}</td>
+      <td align='right' style="font-size:10px;">{{$t_special}}</td>
+      <td align='right' style="font-size:10px;">{{$t_special_a}}</td>
+      <td align='right' style="font-size:10px;">{{$t_USG}}</td>
+      <td align='right' style="font-size:10px;">{{$t_USG_a}}</td>
+      <td align='right' style="font-size:10px;">{{$t_discount}}</td>
+      <td align='right' style="font-size:10px;">{{$t_total}}</td>
+    </tr>
   </table>
 
 </div>

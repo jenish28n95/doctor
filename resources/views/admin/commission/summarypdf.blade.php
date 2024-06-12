@@ -35,6 +35,8 @@ use App\Models\Patient;
       <?php
       $i = 1;
       $total = 0;
+      $total_charge = 0;
+      $total_discount = 0;
       foreach ($doctors as $doctor) {
         $sum = 0;
         $patients = Patient::where('doctors_id', $doctor->id)->get();
@@ -53,6 +55,8 @@ use App\Models\Patient;
           $sum += $wallet->comm_amount;
         }
         $total += $sum;
+        $total_charge += $charges;
+        $total_discount += $discount;
       ?>
         <tr>
           <td align='right' style="font-size:10px;">{{$i}}</td>
@@ -63,15 +67,14 @@ use App\Models\Patient;
           <td align='right' style="font-size:10px;">{{$sum}}</td>
         </tr>
       <?php $i++;
-      }
-      die(); ?>
+      } ?>
       <tr>
         <td></td>
         <td></td>
         <td></td>
-        <td></td>
-        <td align='right' style="font-size:12px;font-weight:bold;">Total</td>
-        <td align='right'>{{$total}}</td>
+        <td align='center' style="font-weight:bold;">{{$total_charge}}</td>
+        <td align='center' style="font-weight:bold;">{{$total_discount}}</td>
+        <td align='right' style="font-weight:bold;">{{$total}}</td>
       </tr>
     </tbody>
   </table>

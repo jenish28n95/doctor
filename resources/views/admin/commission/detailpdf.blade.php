@@ -20,6 +20,8 @@ use App\Models\Patientreport;
     foreach ($doctors as $doctor) {
       $i = 1;
       $total = 0;
+      $total_charge = 0;
+      $total_discount = 0;
     ?>
       <center>
         <p style="font-size:12px;font-weight:bold;">Dr. {{$doctor->name}}</p>
@@ -67,20 +69,22 @@ use App\Models\Patientreport;
                 <td align='right' style="font-size:10px;">{{$comm_amount}}</td>
               </tr>
             </tbody>
-            <?php $total += $comm_amount; ?>
+            <?php $total += $comm_amount;
+            $total_charge += $patient->net_amount;
+            $total_discount += ($patient->basic_amount - $patient->net_amount); ?>
         <?php $i++;
           }
         } ?>
       </table>
-      <table style="border: 1px solid #fff;">
-        <tr>
+      <table>
+        <tr style="border-top:1px solid #000">
           <td width="5%"></td>
           <td width="10%"></td>
           <td width="20%"></td>
           <td width="35%"></td>
-          <td width="10%"></td>
-          <td width="10%" align='right'>Total</td>
-          <td width="10%" align='right'>{{$total}}</td>
+          <td width="10%" align='right' style="font-weight:bold;">{{$total_charge}}</td>
+          <td width="10%" align='right' style="font-weight:bold;">{{$total_discount}}</td>
+          <td width="10%" align='right' style="font-weight:bold;">{{$total}}</td>
         </tr>
       </table>
       <br />
@@ -90,6 +94,8 @@ use App\Models\Patientreport;
     foreach ($doctors as $doctor) {
       $i = 1;
       $total = 0;
+      $total_charge = 0;
+      $total_discount = 0;
     ?>
       <center>
         <p style="font-size:12px;font-weight:bold;">Dr. {{$doctor->name}}</p>
@@ -136,16 +142,20 @@ use App\Models\Patientreport;
                 <td align='right' style="font-size:10px;">{{$comm_amount}}</td>
               </tr>
           <?php $total += $comm_amount;
+              $total_charge += $patient->net_amount;
+              $total_discount += ($patient->basic_amount - $patient->net_amount);
               $i++;
             }
           } ?>
-          <td width="5%"></td>
-          <td width="10%"></td>
-          <td width="20%"></td>
-          <td width="35%"></td>
-          <td width="10%"></td>
-          <td width="10%" align='right'>Total</td>
-          <td width="10%" align='right'>{{$total}}</td>
+          <tr style="border-top:1px solid #000">
+            <td width="5%"></td>
+            <td width="10%"></td>
+            <td width="20%"></td>
+            <td width="35%"></td>
+            <td width="10%" align='right' style="font-weight:bold;">{{$total_charge}}</td>
+            <td width="10%" align='right' style="font-weight:bold;">{{$total_discount}}</td>
+            <td width="10%" align='right' style="font-weight:bold;">{{$total}}</td>
+          </tr>
         </tbody>
       </table>
   <?php }
