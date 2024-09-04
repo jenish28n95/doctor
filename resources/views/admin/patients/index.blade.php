@@ -19,7 +19,7 @@ use App\Models\Patientreport;
       background-color: blanchedalmond;
    }
 </style>
-@endsectoion
+@endsection
 @section('content')
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">

@@ -572,7 +572,7 @@ $ids[] = $emp->id;
   tinymce.init({
     selector: '#editContent',
     plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown',
-    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight lineheightzero | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
     tinycomments_mode: 'embedded',
     tinycomments_author: 'Author name',
     height: 550,
@@ -586,32 +586,63 @@ $ids[] = $emp->id;
       },
     ],
     setup: function(editor) {
-      function setZeroLineHeight() {
-        var selectedContent = editor.selection.getContent({
-          format: 'html'
-        });
-        if (selectedContent) {
-          var modifiedContent = selectedContent.replace(/<p.*?>/g, '<p style="line-height: 0;">');
-          editor.selection.setContent(modifiedContent);
+
+      function capitalizeAfterPeriod() {
+        const body = editor.getBody();
+        const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, null, false);
+
+        while (walker.nextNode()) {
+          const node = walker.currentNode;
+          const text = node.nodeValue;
+          const updatedText = text.replace(/(\.)(\s*)([a-z])/ig, (match, p1, p2, p3) => {
+            return p1 + p2 + p3.toUpperCase();
+          });
+
+          if (text !== updatedText) {
+            const selection = editor.selection.getRng();
+            const startContainer = selection.startContainer;
+            const startOffset = selection.startOffset;
+            const newContent = node.nodeValue = updatedText;
+
+            if (node === startContainer && startOffset > 0) {
+              const newOffset = startOffset + (newContent.length - text.length);
+              const newRange = document.createRange();
+              newRange.setStart(node, newOffset);
+              newRange.collapse(true);
+              editor.selection.setRng(newRange);
+            }
+          }
         }
       }
 
-      // Add custom line height zero option to the toolbar
-      editor.ui.registry.addToggleButton('lineheightzero', {
-        text: 'zero',
-        onAction: setZeroLineHeight
-      });
-
       editor.on('keyup', function(e) {
+        capitalizeAfterPeriod();
         var content = editor.getContent({
           format: 'text'
         });
-        var match = content.match(/\^(\w+)/); // Match "^" followed by a word
+        var match = content.match(/\!(\w+)/); // Match "!" followed by a word
         if (match) {
-          var searchTerm = match[1]; // Extract the search term after "^"
+          var searchTerm = match[1]; // Extract the search term after "!"
           fetchRelatedContent(searchTerm); // Call function to fetch related content
         }
       });
+
+      editor.on('input', function() {
+        capitalizeAfterPeriod();
+      });
+
+      editor.addCommand('capitalizeFirstChar', function() {
+        let selectedText = editor.selection.getContent({
+          format: 'text'
+        });
+        let capitalizedText = selectedText.replace(/\b\w/g, function(char) {
+          return char.toUpperCase();
+        });
+        editor.selection.setContent(capitalizedText);
+      });
+
+      editor.addShortcut('shift+F3', 'Capitalize First Character', 'capitalizeFirstChar');
+
     },
   });
 
@@ -638,55 +669,15 @@ $ids[] = $emp->id;
   function replaceTextWithSuggestion(value) {
     var editor = tinymce.get('editContent');
     var content = editor.getContent(); // Get current content
-    var match = content.match(/\^(\w+)/);
+    var match = content.match(/\!(\w+)/);
     var caretPosition = content.indexOf('^');
     // alert(caretPosition);
     if (match) {
       var searchTerm = match[0];
       var newText = content.replace(searchTerm, value);
       editor.setContent(newText);
-      // alert(value.length);
-      // var length = value.length;
-      // var length = editor.getContent().length;
-      // editor.selection.select(editor.getBody(), true);
-      // editor.selection.collapse(false);
-
-      var replacedLength = caretPosition;
-      var newLength = value.length;
-      var cursorPosition = replacedLength + newLength;
-
-      setCursorPosition(2000)
-
     }
   }
-
-  function setCursorPosition(position) {
-    var editor = tinymce.get('editContent');
-    var body = editor.getBody();
-
-    // Create a range object
-    var range = editor.dom.createRng();
-
-    // Set the range to the desired position
-    range.setStart(body.firstChild, position);
-    range.setEnd(body.firstChild, position);
-
-    // Set the selection with the range
-    editor.selection.setRng(range);
-  }
-
-  // function setCursorPosition(position) {
-  //   // alert(position);
-  //   var editor = tinymce.get('editContent');
-  //   var body = editor.getContent();
-
-  //   alert(position);
-
-  //   // Ensure position is within the content length
-  //   if (position >= 0 && position <= body.length) {
-  //     editor.selection.setCursorLocation(body, position);
-  //   }
-  // }
 </script>
 
 
@@ -711,36 +702,70 @@ $ids[] = $emp->id;
     tinymce.init({
       selector: '#editorContainer_' + editorId,
       plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown',
-      toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight lineheightzero | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+      toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
       tinycomments_mode: 'embedded',
       tinycomments_author: 'Author name',
       height: 550,
       setup: function(editor) {
-        function setZeroLineHeight() {
-          var selectedContent = editor.selection.getContent({
-            format: 'html'
-          });
-          if (selectedContent) {
-            var modifiedContent = selectedContent.replace(/<p.*?>/g, '<p style="line-height: 0;">');
-            editor.selection.setContent(modifiedContent);
+
+        function capitalizeAfterPeriod() {
+          const body = editor.getBody();
+          const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, null, false);
+
+          while (walker.nextNode()) {
+            const node = walker.currentNode;
+            const text = node.nodeValue;
+            const updatedText = text.replace(/(\.)(\s*)([a-z])/ig, (match, p1, p2, p3) => {
+              return p1 + p2 + p3.toUpperCase();
+            });
+
+            if (text !== updatedText) {
+              const selection = editor.selection.getRng();
+              const startContainer = selection.startContainer;
+              const startOffset = selection.startOffset;
+              const newContent = node.nodeValue = updatedText;
+
+              if (node === startContainer && startOffset > 0) {
+                const newOffset = startOffset + (newContent.length - text.length);
+                const newRange = document.createRange();
+                newRange.setStart(node, newOffset);
+                newRange.collapse(true);
+                editor.selection.setRng(newRange);
+              }
+            }
           }
         }
 
-        // Add custom line height zero option to the toolbar
-        editor.ui.registry.addToggleButton('lineheightzero', {
-          text: 'zero',
-          onAction: setZeroLineHeight
-        });
+        // for shortcode data import
         editor.on('keyup', function(e) {
+          capitalizeAfterPeriod();
           var content = editor.getContent({
             format: 'text'
           });
-          var match = content.match(/\^(\w+)/); // Match "^" followed by a word
+          var match = content.match(/\!(\w+)/); // Match "^" followed by a word
           if (match) {
             var searchTerm = match[1]; // Extract the search term after "^"
             fetchRelatedContentDynamic(searchTerm, editorId); // Call function to fetch related content
           }
         });
+
+        editor.on('input', function() {
+          capitalizeAfterPeriod();
+        });
+
+        // for selected word first latter capital
+        editor.addCommand('capitalizeFirstChar', function() {
+          let selectedText = editor.selection.getContent({
+            format: 'text'
+          });
+          let capitalizedText = selectedText.replace(/\b\w/g, function(char) {
+            return char.toUpperCase();
+          });
+          editor.selection.setContent(capitalizedText);
+        });
+
+        editor.addShortcut('shift+F3', 'Capitalize First Character', 'capitalizeFirstChar');
+
       },
     });
   });
@@ -770,7 +795,7 @@ $ids[] = $emp->id;
   function replaceTextWithSuggestionDynamic(value, editorId) {
     var editor = tinymce.get('editorContainer_' + editorId);
     var content = editor.getContent(); // Get current content
-    var match = content.match(/\^(\w+)/);
+    var match = content.match(/\!(\w+)/);
     if (match) {
       var searchTerm = match[0]; // Extract the search term including "^"
       var newText = content.replace(searchTerm, value); // Replace search term with fetched content

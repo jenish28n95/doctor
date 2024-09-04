@@ -39,20 +39,26 @@ use App\Models\Patient;
       $total_discount = 0;
       foreach ($doctors as $doctor) {
         $sum = 0;
-        $patients = Patient::where('doctors_id', $doctor->id)->get();
-        $count = count($patients);
-        if ($count == 0) {
-          continue;
-        }
+        $count = 0;
+        // $patients = Patient::where('doctors_id', $doctor->id)->get();
+        // $count = count($patients);
+        // if ($count == 0) {
+        //   continue;
+        // }
         $charges = 0;
         $discount = 0;
-        foreach ($patients as $patient) {
-          $charges += $patient->net_amount;
-          $discount += ($patient->basic_amount - $patient->net_amount);
-        }
+        // foreach ($patients as $patient) {
+        //   $charges += $patient->net_amount;
+        //   $discount += ($patient->basic_amount - $patient->net_amount);
+        // }
         $wallets = $data->where('doctors_id', $doctor->id);
         foreach ($wallets as $wallet) {
           $sum += $wallet->comm_amount;
+          $count = $count + 1;
+
+          $patient = Patient::where('id', $wallet->patients_id)->first();
+          $charges += $patient->net_amount;
+          $discount += ($patient->basic_amount - $patient->net_amount);
         }
         $total += $sum;
         $total_charge += $charges;
