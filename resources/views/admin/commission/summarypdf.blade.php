@@ -17,6 +17,7 @@ use App\Models\Patient;
     $name = ($doctor == 'all') ? 'All Doctors' : $docname;
     ?>
     <p style="font-size:12px;font-weight:bold;">Ref. Dr. : {{$name}}</p>
+    <p style="font-size:12px;font-weight:bold;">Radiologist : {{$admin_name}}</p>
     <p style="font-size:12px;font-weight:bold;">Period: {{$period}}</p>
   </center>
   <br />

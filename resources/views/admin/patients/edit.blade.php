@@ -137,6 +137,20 @@ $ids[] = $emp->id;
                     </div>
                   </div>
                   <div class="form-group">
+                    <label for="admins_id" class="col-sm-3 control-label">Done by / Radiologist</label>
+                    <div class="col-sm-9">
+                      <select name="admins_id" id="admins_id" class="custom-select form-control form-control-rounded" required>
+                        <option value="">Select Radiologist</option>
+                        @foreach($admins as $admin)
+                        <option value="{{$admin->id}}" {{ $patient->admins_id == $admin->id ? 'selected' : '' }}>{{$admin->name}}</option>
+                        @endforeach
+                      </select>
+                      @if($errors->has('admins_id'))
+                      <div class="error text-danger">{{ $errors->first('admins_id') }}</div>
+                      @endif
+                    </div>
+                  </div>
+                  <div class="form-group">
                     <label for="age" class="col-sm-3 control-label">Age</label>
                     <div class="col-sm-4">
                       <input type="number" name="age" id="age" class="form-control border border-dark mb-2" value="{{$patient->age}}" placeholder="Enter Age" required>
@@ -680,7 +694,6 @@ $ids[] = $emp->id;
   }
 </script>
 
-
 <script>
   function openModaledit(id) {
     // Hide all editor content divs
@@ -830,6 +843,9 @@ $ids[] = $emp->id;
           required: true,
         },
         doctors_id: {
+          required: true,
+        },
+        admins_id: {
           required: true,
         },
         // sex: {

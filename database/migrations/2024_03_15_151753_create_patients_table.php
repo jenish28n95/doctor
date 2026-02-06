@@ -37,6 +37,7 @@ class CreatePatientsTable extends Migration
             $table->string('paytm_amount')->nullable();
             $table->string('is_slip')->default(0)->nullable();
             $table->string('payment')->nullable();
+            $table->unsignedBigInteger('admins_id')->unsigned()->index();
             $table->timestamps();
 
             $table->foreign('doctors_id')->references('id')->on('doctors')->onDelete('cascade');

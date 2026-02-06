@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use Carbon\Carbon;
 use PDF;
 use App\Models\Slip;
@@ -21,11 +22,26 @@ class AdminSlipsController extends Controller
     public function index(Request $request)
     {
         $today = Carbon::today();
-        $patients_slips = Patient::whereDate('created_at', $today)->where('is_slip', 1)->get();
-        $patients_no_slips = Patient::whereDate('created_at', $today)->where('is_slip', 0)->get();
+        $selectedAdmin = $request->selectadmin;
+        if ($selectedAdmin) {
+            $patients_slips = Patient::whereDate('created_at', $today)
+                ->where('admins_id', $selectedAdmin)
+                ->where('is_slip', 1)
+                ->get();
+
+            $patients_no_slips = Patient::whereDate('created_at', $today)
+                ->where('admins_id', $selectedAdmin)
+                ->where('is_slip', 0)
+                ->get();
+            $slipstable = Slip::whereDate('date', $today)->where('admins_id', $selectedAdmin)->get();
+        } else {
+            $patients_slips = Patient::whereDate('created_at', $today)->where('is_slip', 1)->get();
+            $patients_no_slips = Patient::whereDate('created_at', $today)->where('is_slip', 0)->get();
+            $slipstable = Slip::whereDate('date', $today)->get();
+        }
         // $f_year = Financialyear::get();
         $f_year = Session::get('setfinancialyear');
-        $slipstable = Slip::whereDate('date', $today)->get();
+        $admins = Admin::get();
 
         if (isset($request->selectdate)) {
             if (isset($request->select_patient) && isset($request->deselect_patient)) {
@@ -53,11 +69,24 @@ class AdminSlipsController extends Controller
                         unlink(public_path('slipe/') . $get_last_slip->file);
                     }
                     Slip::where('id', $get_last_slip->id)
-                        ->update(['file' => $fileName, 'patients_id' => $request->select_patient]);
+                        ->update(['file' => $fileName, 'patients_id' => $request->select_patient, 'admins_id' => $patient->admins_id]);
                 }
 
-                $patients_slips = Patient::whereDate('created_at', $request->selectdate)->where('is_slip', 1)->get();
-                $patients_no_slips = Patient::whereDate('created_at', $request->selectdate)->where('is_slip', 0)->get();
+
+                if ($selectedAdmin) {
+                    $patients_slips = Patient::whereDate('created_at', $request->selectdate)
+                        ->where('admins_id', $selectedAdmin)
+                        ->where('is_slip', 1)
+                        ->get();
+
+                    $patients_no_slips = Patient::whereDate('created_at', $request->selectdate)
+                        ->where('admins_id', $selectedAdmin)
+                        ->where('is_slip', 0)
+                        ->get();
+                } else {
+                    $patients_slips = Patient::whereDate('created_at', $request->selectdate)->where('is_slip', 1)->get();
+                    $patients_no_slips = Patient::whereDate('created_at', $request->selectdate)->where('is_slip', 0)->get();
+                }
             } elseif (isset($request->select_patient)) {
                 return redirect()->back()->with('error', "Please Deselect patient select");
                 // $patient = Patient::where('id', $request->select_patient)->first();
@@ -92,13 +121,30 @@ class AdminSlipsController extends Controller
                 //     return redirect()->back()->with('error', "Please Deselect patient select");
                 // }
             } else {
-                $patients_slips = Patient::whereDate('created_at', $request->selectdate)->where('is_slip', 1)->get();
-                $patients_no_slips = Patient::whereDate('created_at', $request->selectdate)->where('is_slip', 0)->get();
+                if ($selectedAdmin) {
+                    $patients_slips = Patient::whereDate('created_at', $request->selectdate)
+                        ->where('admins_id', $selectedAdmin)
+                        ->where('is_slip', 1)
+                        ->get();
+
+                    $patients_no_slips = Patient::whereDate('created_at', $request->selectdate)
+                        ->where('admins_id', $selectedAdmin)
+                        ->where('is_slip', 0)
+                        ->get();
+                } else {
+                    $patients_slips = Patient::whereDate('created_at', $request->selectdate)->where('is_slip', 1)->get();
+                    $patients_no_slips = Patient::whereDate('created_at', $request->selectdate)->where('is_slip', 0)->get();
+                }
             }
-            $slipstable = Slip::whereDate('date', $request->selectdate)->get();
+
+            if ($selectedAdmin) {
+                $slipstable = Slip::whereDate('date', $request->selectdate)->where('admins_id', $selectedAdmin)->get();
+            } else {
+                $slipstable = Slip::whereDate('date', $request->selectdate)->get();
+            }
         }
 
-        return view('admin.slip.edit', compact('f_year', 'patients_slips', 'patients_no_slips', 'slipstable'));
+        return view('admin.slip.edit', compact('f_year', 'patients_slips', 'patients_no_slips', 'slipstable', 'admins'));
     }
 
 
@@ -160,9 +206,18 @@ class AdminSlipsController extends Controller
                     [$monthName, $year] = explode('-', $selectedMonth);
 
                     $monthMap = [
-                        'Jan' => 1, 'Feb' => 2, 'Mar' => 3, 'Apr' => 4,
-                        'May' => 5, 'Jun' => 6, 'Jul' => 7, 'Aug' => 8,
-                        'Sep' => 9, 'Oct' => 10, 'Nov' => 11, 'Dec' => 12
+                        'Jan' => 1,
+                        'Feb' => 2,
+                        'Mar' => 3,
+                        'Apr' => 4,
+                        'May' => 5,
+                        'Jun' => 6,
+                        'Jul' => 7,
+                        'Aug' => 8,
+                        'Sep' => 9,
+                        'Oct' => 10,
+                        'Nov' => 11,
+                        'Dec' => 12
                     ];
 
                     $month = $monthMap[$monthName];
@@ -256,9 +311,18 @@ class AdminSlipsController extends Controller
                     [$monthName, $year] = explode('-', $selectedMonth);
 
                     $monthMap = [
-                        'Jan' => 1, 'Feb' => 2, 'Mar' => 3, 'Apr' => 4,
-                        'May' => 5, 'Jun' => 6, 'Jul' => 7, 'Aug' => 8,
-                        'Sep' => 9, 'Oct' => 10, 'Nov' => 11, 'Dec' => 12
+                        'Jan' => 1,
+                        'Feb' => 2,
+                        'Mar' => 3,
+                        'Apr' => 4,
+                        'May' => 5,
+                        'Jun' => 6,
+                        'Jul' => 7,
+                        'Aug' => 8,
+                        'Sep' => 9,
+                        'Oct' => 10,
+                        'Nov' => 11,
+                        'Dec' => 12
                     ];
 
                     $month = $monthMap[$monthName];

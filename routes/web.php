@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminAdminController;
 use App\Http\Controllers\AdminSlipsController;
 use App\Http\Controllers\AdminBackupController;
 use App\Http\Controllers\AdminFlowupController;
@@ -148,6 +149,17 @@ Route::group(['middleware' => ['auth', 'usersession']], function () {
     Route::get("admin/investigation", [AdminController::class, 'investigation'])->name('admin.investigation.report');
     Route::post("admin/investigation-pdf", [AdminController::class, 'viewInvestigationPDF'])->name('admin.investigation-pdf.report');
     Route::post("admin/investigation-download", [AdminController::class, 'downloadInvestigationPDF'])->name('admin.investigation-download.report');
+
+    Route::get("admin/admins", [AdminAdminController::class, 'index'])->name('admin.admins.index');
+    Route::get('admin/admins/create', [AdminAdminController::class, 'create'])->name('admin.admins.create');
+    Route::post('admin/admins/store', [AdminAdminController::class, 'store'])->name('admin.admins.store');
+    Route::get('admin/admins/edit/{id}', [AdminAdminController::class, 'edit'])->name('admin.admins.edit');
+    Route::patch('admin/admins/update/{id}', [AdminAdminController::class, 'update'])->name('admin.admins.update');
+    Route::get('admin/admins/destroy/{id}', [AdminAdminController::class, 'destroy'])->name('admin.admins.destroy');
+    Route::get("admin/admins/active/{id}", [AdminAdminController::class, 'adminActive'])->name('admin.admins.active');
+
+    Route::get("admin/admins/update-wallet", [AdminAdminController::class, 'updatewallet'])->name('admin.admins.updatewallet');
+    Route::get("admin/admins/update-admin-zeros", [AdminAdminController::class, 'updateAdminZeros'])->name('admin.update.zeros');
 });
 
 //Clear Cache facade value:

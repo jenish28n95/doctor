@@ -61,6 +61,17 @@ use App\Models\Patient;
                 <input type="date" name="selectdate" id="selectdate" value="{{ isset(request()->selectdate) ? request()->selectdate : date('Y-m-d') }}" class="form-control border border-dark mb-2">
               </div>
             </div>
+            <div class="form-group">
+              <label for="selectadmin" class="col-sm-4 control-label">Select Radiologist</label>
+              <div class="col-sm-8">
+                <select name="selectadmin" id="selectadmin" class="custom-select form-control form-control-rounded" onchange="form.submit()">
+                  <option value="">Select Radiologist</option>
+                  @foreach($admins as $admin)
+                  <option value="{{$admin->id}}" {{ request()->selectadmin == $admin->id ? 'selected' : '' }}>{{$admin->name}}</option>
+                  @endforeach
+                </select>
+              </div>
+            </div>
           </div>
 
           <div class="col-md-6">

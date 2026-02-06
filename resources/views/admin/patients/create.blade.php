@@ -61,6 +61,20 @@
                      </div>
                   </div>
                   <div class="form-group">
+                     <label for="admins_id" class="col-sm-3 control-label">Done by / Radiologist</label>
+                     <div class="col-sm-9">
+                        <select name="admins_id" id="admins_id" class="custom-select form-control form-control-rounded" required>
+                           <option value="">Select Radiologist</option>
+                           @foreach($admins as $admin)
+                           <option value="{{$admin->id}}">{{$admin->name}}</option>
+                           @endforeach
+                        </select>
+                        @if($errors->has('admins_id'))
+                        <div class="error text-danger">{{ $errors->first('admins_id') }}</div>
+                        @endif
+                     </div>
+                  </div>
+                  <div class="form-group">
                      <label for="age" class="col-sm-3 control-label">Age</label>
                      <div class="col-sm-4">
                         <input type="number" name="age" id="age" class="form-control border border-dark mb-2" placeholder="Enter Age" required>
@@ -206,7 +220,10 @@
             },
             doctors_id: {
                required: true,
-            }
+            },
+            admins_id: {
+               required: true,
+            },
          },
          submitHandler: function(form) {
             form.submit();

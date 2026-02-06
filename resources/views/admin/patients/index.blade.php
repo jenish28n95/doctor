@@ -63,6 +63,12 @@ use App\Models\Patientreport;
                   <div class="col-md-8">
                      {!! Form::open(['method'=>'GET', 'action'=> 'AdminPatientsController@index','class'=>'form-horizontal']) !!}
                      @csrf
+                     <select name="selectadmin" id="selectadmin" class="border border-dark" onchange="return this.form.submit();">
+                        <option value="">Select Radiologist</option>
+                        @foreach($admins as $admin)
+                        <option value="{{$admin->id}}" {{ request()->selectadmin == $admin->id ? 'selected' : '' }}>{{$admin->name}}</option>
+                        @endforeach
+                     </select>
                      <input type="date" name="start_date" id="start_date" class="border border-dark" value="{{ isset(request()->start_date) ? request()->start_date : date('Y-m-d') }}" onchange="return this.form.submit();">
                      <input type="date" name="end_date" id="end_date" class="border border-dark" value="{{ isset(request()->end_date) ? request()->end_date : date('Y-m-d') }}" onchange="return this.form.submit();">
                      <select name="session" id="session" class="border border-dark" onchange="return this.form.submit();">
@@ -91,6 +97,7 @@ use App\Models\Patientreport;
                            <th>Age</th>
                            <th>Sex</th>
                            <th>Ref. Doctor</th>
+                           <th>Done By</th>
                            <th>Arrival Time</th>
                            <th>Discount</th>
                            <th>Balance</th>
@@ -139,6 +146,7 @@ use App\Models\Patientreport;
                            <td>{{$patient->age}}&nbsp;{{$patient->year}}</td>
                            <td>{{$patient->sex}}</td>
                            <td>{{$patient->doctors->name}}</td>
+                           <td>{{$patient->admins->name}}</td>
                            <td>{{$patient->arrival_time}}</td>
                            <td>{{$patient->payment_mode}}</td>
                            <td>

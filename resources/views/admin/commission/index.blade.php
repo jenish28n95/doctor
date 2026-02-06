@@ -64,6 +64,17 @@ use App\Models\Patientreport;
                 </div>
               </div>
               <div class="form-group">
+                <label for="selectadmin" class="col-sm-2 control-label">Radiologist</label>
+                <div class="col-sm-4">
+                  <select name="selectadmin" id="selectadmin" class="custom-select form-control form-control-rounded">
+                    <option value="">Select Radiologist</option>
+                    @foreach($admins as $admin)
+                    <option value="{{$admin->id}}" {{ request()->selectadmin == $admin->id ? 'selected' : '' }}>{{$admin->name}}</option>
+                    @endforeach
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
                 <label for="date_range" class="col-sm-2 control-label">Select date</label>
                 <div class="col-sm-4">
                   <select name="date_range" id="date_range" class="custom-select form-control form-control-rounded" required>

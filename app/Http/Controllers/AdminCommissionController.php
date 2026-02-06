@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use App\Models\Doctor;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
@@ -19,6 +20,7 @@ class AdminCommissionController extends Controller
     public function index(Request $request)
     {
         $f_years = Financialyear::get();
+        $admins = Admin::get();
         // $doctors = Doctor::where('name', '!=', 'self')->get();
         $doctors = Doctor::where('name', '!=', 'self')
             ->whereHas('patients', function ($query) {
@@ -30,6 +32,8 @@ class AdminCommissionController extends Controller
         if ($request->has('date_range')) {
             $dateRange = $request->input('date_range');
             $select_doctor = $request->input('doctor');
+            $selectedAdmin = $request->input('selectadmin');
+
             if ($select_doctor == 'all') {
                 switch ($dateRange) {
                     case 'today':
@@ -94,6 +98,10 @@ class AdminCommissionController extends Controller
                 }
             }
 
+            if ($selectedAdmin) {
+                $wallet->where('admins_id', $selectedAdmin);
+            }
+
             $data = $wallet->get();
             $data_count = $wallet->count();
             if (isset($data) && $data_count != 0) {
@@ -101,7 +109,7 @@ class AdminCommissionController extends Controller
             }
             return redirect()->back()->with('success', "0 Record found");
         }
-        return view('admin.commission.index', compact('doctors', 'f_years', 'data'));
+        return view('admin.commission.index', compact('doctors', 'f_years', 'data', 'admins'));
     }
 
     // public function download(Request $request)
@@ -261,10 +269,12 @@ class AdminCommissionController extends Controller
         $f_years = Financialyear::get();
         $doctors = Doctor::where('name', '!=', 'self')->get();
         $data = [];
+        $admin_name = 'ALL';
         $wallet = Wallet::query();
         if ($request->has('date_range')) {
             $dateRange = $request->input('date_range');
             $selectedDoctors = $request->input('doctor');
+            $selectedAdmin = $request->input('selectadmin');
 
             $select_doctor = $selectedDoctors;
 
@@ -323,17 +333,23 @@ class AdminCommissionController extends Controller
                     return redirect()->back()->with('error', "Please select a valid date range");
             }
 
+            if ($selectedAdmin) {
+                $admin = Admin::where('id', $selectedAdmin)->first();
+                $admin_name = $admin->name;
+                $wallet->where('admins_id', $selectedAdmin);
+            }
+
             $data = $wallet->get();
             $data_count = $wallet->count();
 
             if (isset($data) && $data_count != 0) {
                 if ($request->input('report') == 'summary') {
                     $doctors = Doctor::whereIn('id', $select_doctor)->get();
-                    $pdf = PDF::loadView('admin.commission.summarypdf', compact('doctors', 'f_years', 'data', 'period'));
+                    $pdf = PDF::loadView('admin.commission.summarypdf', compact('doctors', 'f_years', 'data', 'period', 'admin_name'));
                 }
                 if ($request->input('report') == 'detail') {
                     $doctors = Doctor::whereIn('id', $select_doctor)->get();
-                    $pdf = PDF::loadView('admin.commission.detailpdf', compact('doctors', 'f_years', 'data', 'period'));
+                    $pdf = PDF::loadView('admin.commission.detailpdf', compact('doctors', 'f_years', 'data', 'period', 'admin_name'));
                 }
 
                 return $pdf->download('commission-report.pdf');

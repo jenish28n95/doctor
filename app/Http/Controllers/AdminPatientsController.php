@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use Carbon\Carbon;
 use PDF;
 use Validator;
@@ -82,14 +83,19 @@ class AdminPatientsController extends Controller
             $patientsQuery->where('doctors_id', $request->ref_doctor);
         }
 
+        if ($request->has('selectadmin') && $request->selectadmin != '') {
+            $patientsQuery->where('admins_id', $request->selectadmin);
+        }
+
         // Get the filtered patients list
         $patients = $patientsQuery->orderBy('id', 'ASC')->get();
 
         // Get all doctors
         $doctors = Doctor::all();
+        $admins = Admin::all();
 
         // Return the view with patients and doctors
-        return view('admin.patients.index', compact('patients', 'doctors'));
+        return view('admin.patients.index', compact('patients', 'doctors', 'admins'));
     }
 
     /**
@@ -100,7 +106,8 @@ class AdminPatientsController extends Controller
     public function create()
     {
         $doctors = Doctor::get();
-        return view('admin.patients.create', compact('doctors'));
+        $admins = Admin::where('is_active', 1)->get();
+        return view('admin.patients.create', compact('doctors', 'admins'));
     }
 
     /**
@@ -113,6 +120,7 @@ class AdminPatientsController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'doctors_id' => 'required',
+            'admins_id' => 'required',
             'name' => ['required', 'string', 'max:255'],
             // 'mobile' => 'required|numeric|digits:10',
             // 'investigation' => 'required',
@@ -136,6 +144,7 @@ class AdminPatientsController extends Controller
         // if ($patient->doctors_id != $self_id) {
         $wallet = new Wallet;
         $wallet->doctors_id = $patient->doctors_id;
+        $wallet->admins_id = $patient->admins_id;
         $wallet->patients_id = $patient->id;
         $wallet->comm_amount = 0;
         $wallet->comm_date = $patient->created_at;
@@ -167,9 +176,10 @@ class AdminPatientsController extends Controller
     {
         $patientreports = Patientreport::where('patients_id', $id)->get();
         $doctors = Doctor::get();
+        $admins = Admin::where('is_active', 1)->get();
         $rtypes = Rtype::get();
         $patient = Patient::findOrFail($id);
-        return view('admin.patients.edit', compact('doctors', 'patient', 'rtypes', 'patientreports'));
+        return view('admin.patients.edit', compact('doctors', 'patient', 'rtypes', 'patientreports', 'admins'));
     }
 
     /**
@@ -184,6 +194,7 @@ class AdminPatientsController extends Controller
         $validator = Validator::make($request->all(), [
             'doctors_id' => 'required',
             'name' => ['required', 'string', 'max:255'],
+            'admins_id' => 'required',
             // 'mobile' => 'required|numeric|digits:10',
             // 'investigation' => 'required',
             'age' => 'required|between:1,100',
@@ -229,12 +240,12 @@ class AdminPatientsController extends Controller
             Wallet::where('patients_id', $id)
                 ->where('f_year', $f_year)
                 ->whereDate('comm_date', $patient->created_at)
-                ->update(['doctors_id' => $patient->doctors_id, 'comm_amount' => 0]);
+                ->update(['doctors_id' => $patient->doctors_id, 'admins_id' => $patient->admins_id, 'comm_amount' => 0]);
         } else {
             Wallet::where('patients_id', $id)
                 ->where('f_year', $f_year)
                 ->whereDate('comm_date', $patient->created_at)
-                ->update(['doctors_id' => $patient->doctors_id]);
+                ->update(['doctors_id' => $patient->doctors_id, 'admins_id' => $patient->admins_id]);
         }
 
         // return redirect('admin/patients')->with('success', "Update Record Successfully");
@@ -968,6 +979,7 @@ class AdminPatientsController extends Controller
                     $slip->date = $patient->created_at;
                     $slip->file = $fileName;
                     $slip->f_year = $f_year;
+                    $slip->admins_id = $patient->admins_id;
                     $slip->save();
 
                     Patient::where('id', $patient->id)->update(['is_slip' => 1]);

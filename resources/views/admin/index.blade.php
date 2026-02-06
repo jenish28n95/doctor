@@ -98,7 +98,11 @@
           </select>
         </form>
         <center>
-          <h4><b><?= isset(request()->custom_month) ? request()->custom_month : $monthlist[0]['month'] . '-' . $monthlist[0]['year'] ?></b></h4>
+          <h4><b>
+              @if(!empty($monthlist))
+              <?= isset(request()->custom_month) ? request()->custom_month : $monthlist[0]['month'] . '-' . $monthlist[0]['year'] ?>
+              @endif
+            </b></h4>
         </center>
         <canvas id="dayPatientsChart" width="400" height="200" style="background-color: #f0f0f0;"></canvas>
       </div>

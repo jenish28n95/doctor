@@ -30,6 +30,7 @@
     <li class="{{ (request()->segment(2) == 'slip-summary') ? 'active' : '' }}"><a href="/admin/slip-summary"><i class="fa fa-file-pdf-o"></i> <span>Summary Slip</span></a></li>
     <li class="{{ (request()->segment(2) == 'flowup') ? 'active' : '' }}"><a href="/admin/flowup"><i class="fa fa-file-text"></i> <span>Follow Up</span></a></li>
     <li class="{{ (request()->segment(2) == 'investigation') ? 'active' : '' }}"><a href="/admin/investigation"><i class="fa fa-file-text"></i> <span>Investigation Report</span></a></li>
+    <li class="{{ (request()->segment(2) == 'admins') ? 'active' : '' }}"><a href="/admin/admins"><i class="fa fa-file-text"></i> <span>Admin</span></a></li>
     <!-- <li class="{{ (request()->segment(1) == 'profile') ? 'active' : '' }}"><a href="/profile/{{Session::get('user')['id']}}"><i class="fa fa-dashboard"></i><span>Change password</span></a></li> -->
   </ul>
 </section>

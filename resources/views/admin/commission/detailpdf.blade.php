@@ -25,6 +25,7 @@ use App\Models\Patientreport;
     ?>
       <center>
         <p style="font-size:12px;font-weight:bold;">Dr. {{$doctor->name}}</p>
+        <p style="font-size:12px;font-weight:bold;">Radiologist : {{$admin_name}}</p>
         <p style="font-size:12px;font-weight:bold;">Period: {{$period}}</p>
       </center>
       <table style="border: 1px solid #fff;">
@@ -99,6 +100,7 @@ use App\Models\Patientreport;
     ?>
       <center>
         <p style="font-size:12px;font-weight:bold;">Dr. {{$doctor->name}}</p>
+        <p style="font-size:12px;font-weight:bold;">Radiologist : {{$admin_name}}</p>
         <p style="font-size:12px;font-weight:bold;">Period: {{$period}}</p>
       </center>
       <table style="border: 1px solid #fff;" class="table table-bordered table-striped">

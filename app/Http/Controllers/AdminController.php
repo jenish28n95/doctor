@@ -68,9 +68,18 @@ class AdminController extends Controller
             [$monthName, $year] = explode('-', $selectedMonth);
 
             $monthMap = [
-                'Jan' => 1, 'Feb' => 2, 'Mar' => 3, 'Apr' => 4,
-                'May' => 5, 'Jun' => 6, 'Jul' => 7, 'Aug' => 8,
-                'Sep' => 9, 'Oct' => 10, 'Nov' => 11, 'Dec' => 12
+                'Jan' => 1,
+                'Feb' => 2,
+                'Mar' => 3,
+                'Apr' => 4,
+                'May' => 5,
+                'Jun' => 6,
+                'Jul' => 7,
+                'Aug' => 8,
+                'Sep' => 9,
+                'Oct' => 10,
+                'Nov' => 11,
+                'Dec' => 12
             ];
 
             $month = $monthMap[$monthName];
@@ -302,9 +311,18 @@ class AdminController extends Controller
                     [$monthName, $year] = explode('-', $selectedMonth);
 
                     $monthMap = [
-                        'Jan' => 1, 'Feb' => 2, 'Mar' => 3, 'Apr' => 4,
-                        'May' => 5, 'Jun' => 6, 'Jul' => 7, 'Aug' => 8,
-                        'Sep' => 9, 'Oct' => 10, 'Nov' => 11, 'Dec' => 12
+                        'Jan' => 1,
+                        'Feb' => 2,
+                        'Mar' => 3,
+                        'Apr' => 4,
+                        'May' => 5,
+                        'Jun' => 6,
+                        'Jul' => 7,
+                        'Aug' => 8,
+                        'Sep' => 9,
+                        'Oct' => 10,
+                        'Nov' => 11,
+                        'Dec' => 12
                     ];
 
                     $month = $monthMap[$monthName];
@@ -384,9 +402,18 @@ class AdminController extends Controller
                     [$monthName, $year] = explode('-', $selectedMonth);
 
                     $monthMap = [
-                        'Jan' => 1, 'Feb' => 2, 'Mar' => 3, 'Apr' => 4,
-                        'May' => 5, 'Jun' => 6, 'Jul' => 7, 'Aug' => 8,
-                        'Sep' => 9, 'Oct' => 10, 'Nov' => 11, 'Dec' => 12
+                        'Jan' => 1,
+                        'Feb' => 2,
+                        'Mar' => 3,
+                        'Apr' => 4,
+                        'May' => 5,
+                        'Jun' => 6,
+                        'Jul' => 7,
+                        'Aug' => 8,
+                        'Sep' => 9,
+                        'Oct' => 10,
+                        'Nov' => 11,
+                        'Dec' => 12
                     ];
 
                     $month = $monthMap[$monthName];
@@ -463,18 +490,14 @@ class AdminController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-    }
+    public function index() {}
 
     /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
-    }
+    public function create() {}
 
     /**
      * Store a newly created resource in storage.
@@ -482,9 +505,7 @@ class AdminController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-    }
+    public function store(Request $request) {}
 
     /**
      * Display the specified resource.
@@ -503,9 +524,7 @@ class AdminController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
-    {
-    }
+    public function edit($id) {}
 
     /**
      * Update the specified resource in storage.
@@ -514,9 +533,7 @@ class AdminController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-    }
+    public function update(Request $request, $id) {}
 
     /**
      * Remove the specified resource from storage.
@@ -524,7 +541,5 @@ class AdminController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
-    {
-    }
+    public function destroy($id) {}
 }
