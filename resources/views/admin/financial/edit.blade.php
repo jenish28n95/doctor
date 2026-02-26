@@ -30,7 +30,7 @@
                   <div class="form-group">
                      <label for="year" class="col-sm-2 control-label">Year</label>
                      <div class="col-sm-4">
-                        <input type="text" class="form-control" name="year" id="year" value="{{$financialyear->year}}" placeholder="Enter year" required>
+                        <input type="text" class="form-control" name="year" id="year" value="{{$financialyear->year}}" placeholder="XXXX-XXXX" pattern="[0-9]{4}-[0-9]{4}" required>
                         @if($errors->has('year'))
                         <div class="error text-danger">{{ $errors->first('year') }}</div>
                         @endif
@@ -67,6 +67,13 @@
             form.submit();
          }
       });
+   });
+   document.getElementById('year').addEventListener('input', function(e) {
+      var target = e.target;
+      var value = target.value.replace(/\D/g, '').substring(0, 8);
+      var formattedValue = value.replace(/(\d{4})/, '$1-').substring(0, 9); // Add '-' after 4 digits
+
+      target.value = formattedValue;
    });
 </script>
 @endsection

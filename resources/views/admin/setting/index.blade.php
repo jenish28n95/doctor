@@ -37,16 +37,16 @@
                         <div class="form-group">
                            <!-- <label for="year" class="col-sm-2 control-label">Commission value set</label> -->
                            <div class="col-sm-3">
-                              <label for="year" class="control-label">Maximum amount threshould</label>
+                              <label for="year" class="control-label">Maximum amount threshould <span class="text-danger">*</span></label>
                               <input type="text" class="form-control" name="f_amount" id="f_amount" placeholder="Enter price" value="{{$f_setting->amount}}" required>
                            </div>
                            <div class="col-sm-3">
-                              <label for="year" class="control-label">Max commission amount</label>
+                              <label for="year" class="control-label">Max commission amount <span class="text-danger">*</span></label>
                               <input type="text" class="form-control" name="f_comm_amount" id="f_comm_amount" placeholder="Enter fixed rate" value="{{$f_setting->comm_amount}}" required>
                            </div>
                            <?php $value = $p_setting->comm_amount * 100 ?>
                            <div class="col-sm-3">
-                              <label for="year" class="control-label">Min commission (in percentage)</label>
+                              <label for="year" class="control-label">Min commission (in percentage) <span class="text-danger">*</span></label>
                               <input type="number" class="form-control" name="p_comm_amount" id="p_comm_amount" placeholder="Enter percentage" value="{{$value}}" required>
                            </div>
                         </div>

@@ -33,7 +33,7 @@
                      @csrf
                      <div class="box-body">
                         <div class="form-group">
-                           <label for="year" class="col-sm-2 control-label">Year</label>
+                           <label for="year" class="col-sm-2 control-label">Year <span class="text-danger">*</span></label>
                            <div class="col-sm-10">
                               <input type="text" class="form-control" name="year" id="year" placeholder="XXXX-XXXX" pattern="[0-9]{4}-[0-9]{4}" required>
                               @if($errors->has('year'))
