@@ -50,7 +50,7 @@ use App\Models\Patientreport;
             @csrf
             <div class="box-body">
               <div class="form-group">
-                <label for="doctor" class="col-sm-2 control-label">Doctors</label>
+                <label for="doctor" class="col-sm-2 control-label">Doctors <span class="text-danger">*</span></label>
                 <div class="col-sm-4">
                   <select class="form-control" id="doctor-select" name="doctor[]" multiple="multiple">
                     <option value="all">All</option>
@@ -64,7 +64,7 @@ use App\Models\Patientreport;
                 </div>
               </div>
               <div class="form-group">
-                <label for="selectadmin" class="col-sm-2 control-label">Radiologist</label>
+                <label for="selectadmin" class="col-sm-2 control-label">Radiologist <span class="text-danger">*</span></label>
                 <div class="col-sm-4">
                   <select name="selectadmin" id="selectadmin" class="custom-select form-control form-control-rounded">
                     <option value="">Select Radiologist</option>
@@ -75,7 +75,7 @@ use App\Models\Patientreport;
                 </div>
               </div>
               <div class="form-group">
-                <label for="date_range" class="col-sm-2 control-label">Select date</label>
+                <label for="date_range" class="col-sm-2 control-label">Select date <span class="text-danger">*</span></label>
                 <div class="col-sm-4">
                   <select name="date_range" id="date_range" class="custom-select form-control form-control-rounded" required>
                     <option value="">Select</option>
@@ -92,7 +92,7 @@ use App\Models\Patientreport;
                 </div>
               </div>
               <div class="form-group">
-                <label for="doctor" class="col-sm-2 control-label">report</label>
+                <label for="doctor" class="col-sm-2 control-label">Report <span class="text-danger">*</span></label>
                 <div class="col-sm-4">
                   <select name="report" id="report" class="custom-select form-control form-control-rounded" required>
                     <option value="summary">Summary</option>

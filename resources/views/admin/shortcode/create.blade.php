@@ -27,7 +27,7 @@
                @csrf
                <div class="box-body">
                   <div class="form-group">
-                     <label for="code" class="col-sm-2 control-label">Short code</label>
+                     <label for="code" class="col-sm-2 control-label">Short code <span class="text-danger">*</span></label>
                      <div class="col-sm-4">
                         <input type="text" class="form-control" name="code" id="code" placeholder="Enter short code" required>
                         <!-- <input type="text" class="form-control" name="code" id="code" placeholder="Enter short code" minlength="4" maxlength="4" required>
@@ -38,7 +38,7 @@
                      </div>
                   </div>
                   <div class="form-group">
-                     <label for="value" class="col-sm-2 control-label">Content</label>
+                     <label for="value" class="col-sm-2 control-label">Content <span class="text-danger">*</span></label>
                      <div class="col-sm-4">
                         <textarea class="form-control" name="value" required></textarea>
                         @if($errors->has('value'))

@@ -56,13 +56,13 @@ use App\Models\Patient;
         <div class="row">
           <div class="col-md-6">
             <div class="form-group">
-              <label for="date" class="col-sm-4 control-label">Date</label>
-              <div class="col-sm-7">
+              <label for="date" class="col-sm-4 control-label">Date <span class="text-danger">*</span></label>
+              <div class="col-sm-8">
                 <input type="date" name="selectdate" id="selectdate" value="{{ isset(request()->selectdate) ? request()->selectdate : date('Y-m-d') }}" class="form-control border border-dark mb-2">
               </div>
             </div>
             <div class="form-group">
-              <label for="selectadmin" class="col-sm-4 control-label">Select Radiologist</label>
+              <label for="selectadmin" class="col-sm-4 control-label">Select Radiologist <span class="text-danger">*</span></label>
               <div class="col-sm-8">
                 <select name="selectadmin" id="selectadmin" class="custom-select form-control form-control-rounded" onchange="form.submit()">
                   <option value="">Select Radiologist</option>
@@ -83,7 +83,7 @@ use App\Models\Patient;
         <div class="row">
           <div class="col-md-6">
             <div class="form-group">
-              <label for="date" class="col-sm-4 control-label">Select patient for slip</label>
+              <label for="date" class="col-sm-4 control-label">Select patient for slip <span class="text-danger">*</span></label>
               <div class="col-sm-8">
                 <select name="select_patient" id="select_patient" class="custom-select form-control form-control-rounded">
                   <option value="">Select for Slip</option>
@@ -97,7 +97,7 @@ use App\Models\Patient;
 
           <div class="col-md-6">
             <div class="form-group">
-              <label for="date" class="col-sm-4 control-label">Deselect patient</label>
+              <label for="date" class="col-sm-4 control-label">Deselect patient <span class="text-danger">*</span></label>
               <div class="col-sm-8">
                 <select name="deselect_patient" id="deselect_patient" class="custom-select form-control form-control-rounded">
                   <option value="">Deselect for Slip</option>

@@ -15,7 +15,7 @@ use App\Models\Patientreport;
 
   <table>
     <thead>
-      <tr style="background-color:#f1f1f1">
+      <!-- <tr style="background-color:#f1f1f1">
         <th style="font-size:12px;font-weight:bold;text-align:center;">Month</th>
         <th style="font-size:12px;font-weight:bold;text-align:center;">X-Rays</th>
         <th style="font-size:12px;font-weight:bold;text-align:center;">Amount</th>
@@ -31,6 +31,31 @@ use App\Models\Patientreport;
         <th style="font-size:12px;font-weight:bold;text-align:center;">Amount</th>
         <th style="font-size:12px;font-weight:bold;text-align:center;">Discount</th>
         <th style="font-size:12px;font-weight:bold;text-align:center;">Total</th>
+      </tr> -->
+      <tr style="background-color:#f1f1f1">
+        <th rowspan="2">Date</th>
+        <th colspan="2">X-Ray</th>
+        <th colspan="2">Sonography</th>
+        <th colspan="2">Doppler</th>
+        <th colspan="2">Procedure</th>
+        <th colspan="2">Special</th>
+        <th colspan="2">USG</th>
+        <th rowspan="2">Discount</th>
+        <th rowspan="2">Total</th>
+      </tr>
+      <tr style="background-color:#f1f1f1">
+        <th>Count</th>
+        <th>Amount</th>
+        <th>Count</th>
+        <th>Amount</th>
+        <th>Count</th>
+        <th>Amount</th>
+        <th>Count</th>
+        <th>Amount</th>
+        <th>Count</th>
+        <th>Amount</th>
+        <th>Count</th>
+        <th>Amount</th>
       </tr>
     </thead>
     <?php

@@ -38,7 +38,7 @@
                 @csrf
                 <div class="box-body">
                   <div class="form-group">
-                    <label for="date_range" class="col-sm-2 control-label">Export</label>
+                    <label for="date_range" class="col-sm-2 control-label">Export <span class="text-danger">*</span></label>
                     <div class="col-sm-4">
                       <select name="date_range" id="date_range" class="custom-select form-control form-control-rounded" required>
                         <option value="">Select</option>

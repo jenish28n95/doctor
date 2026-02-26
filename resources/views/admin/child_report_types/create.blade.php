@@ -27,7 +27,7 @@
                @csrf
                <div class="box-body">
                   <div class="form-group">
-                     <label for="rtypes_id" class="col-sm-2 control-label">Report type</label>
+                     <label for="rtypes_id" class="col-sm-2 control-label">Report type <span class="text-danger">*</span></label>
                      <div class="col-sm-4">
                         <select name="rtypes_id" id="rtypes_id" class="custom-select form-control form-control-rounded" required>
                            <option value="">Select report</option>
@@ -41,7 +41,7 @@
                      </div>
                   </div>
                   <div class="form-group">
-                     <label for="name" class="col-sm-2 control-label">Name</label>
+                     <label for="name" class="col-sm-2 control-label">Name <span class="text-danger">*</span></label>
                      <div class="col-sm-4">
                         <input type="text" class="form-control" name="name" id="name" placeholder="Enter name" required>
                         @if($errors->has('name'))
@@ -50,7 +50,7 @@
                      </div>
                   </div>
                   <div class="form-group">
-                     <label for="amount" class="col-sm-2 control-label">Amount</label>
+                     <label for="amount" class="col-sm-2 control-label">Amount <span class="text-danger">*</span></label>
                      <div class="col-sm-4">
                         <input type="number" name="amount" id="amount" class="form-control border border-dark mb-2" placeholder="Enter amount" required>
                         @if($errors->has('amount'))

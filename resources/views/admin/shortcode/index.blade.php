@@ -29,9 +29,9 @@
                   <table id="shortcodeTable" class="table table-bordered table-striped">
                      <thead class="bg-primary">
                         <tr>
-                           <th>Action</th>
-                           <th>Short name</th>
-                           <th>Content</th>
+                           <th width="10%">Action</th>
+                           <th width="20%">Short name</th>
+                           <th width="70%">Content</th>
                         </tr>
                      </thead>
                      <tbody>
@@ -42,10 +42,10 @@
                         </td>
                         <td>{{$shortcode->code}}</td>
                         <td>
-                           @if(strlen($shortcode->value) > 50)
-                           {!!substr($shortcode->value,0,50)!!}
+                           @if(strlen($shortcode->value) > 100)
+                           {!!substr($shortcode->value,0,100)!!}
                            <span class="read-more-show hide_content">More<i class="fa fa-angle-down"></i></span>
-                           <span class="read-more-content"> {{substr($shortcode->value,50,strlen($shortcode->value))}}
+                           <span class="read-more-content"> {{substr($shortcode->value,100,strlen($shortcode->value))}}
                               <span class="read-more-hide hide_content">Less <i class="fa fa-angle-up"></i></span> </span>
                            @else
                            {{$shortcode->value}}

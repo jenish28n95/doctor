@@ -29,7 +29,7 @@
                   <!-- Horizontal Form -->
 
                   <div class="form-group">
-                     <label for="name" class="col-sm-3 control-label">Name</label>
+                     <label for="name" class="col-sm-3 control-label">Name <span class="text-danger">*</span></label>
                      <div class="col-sm-9">
                         <input type="text" class="form-control" name="name" id="name" placeholder="Enter name" required>
                         @if($errors->has('name'))
@@ -47,7 +47,7 @@
                      </div>
                   </div> -->
                   <div class="form-group">
-                     <label for="doctors_id" class="col-sm-3 control-label">Reference Docotor</label>
+                     <label for="doctors_id" class="col-sm-3 control-label">Reference Docotor <span class="text-danger">*</span></label>
                      <div class="col-sm-9">
                         <select name="doctors_id" id="doctors_id" class="custom-select form-control form-control-rounded" required>
                            <option value="">Select Doctor</option>
@@ -61,7 +61,7 @@
                      </div>
                   </div>
                   <div class="form-group">
-                     <label for="admins_id" class="col-sm-3 control-label">Done by / Radiologist</label>
+                     <label for="admins_id" class="col-sm-3 control-label">Done by / Radiologist <span class="text-danger">*</span></label>
                      <div class="col-sm-9">
                         <select name="admins_id" id="admins_id" class="custom-select form-control form-control-rounded" required>
                            <option value="">Select Radiologist</option>
@@ -75,7 +75,7 @@
                      </div>
                   </div>
                   <div class="form-group">
-                     <label for="age" class="col-sm-3 control-label">Age</label>
+                     <label for="age" class="col-sm-3 control-label">Age <span class="text-danger">*</span></label>
                      <div class="col-sm-4">
                         <input type="number" name="age" id="age" class="form-control border border-dark mb-2" placeholder="Enter Age" required>
                         @if($errors->has('age'))
@@ -94,7 +94,7 @@
                      </div>
                   </div>
                   <div class="form-group">
-                     <label for="sex" class="col-sm-3 control-label">Gender</label>
+                     <label for="sex" class="col-sm-3 control-label">Gender <span class="text-danger">*</span></label>
                      <div class="col-sm-9">
                         <label class="radio-inline">
                            <input type="radio" name="sex" value="male" checked> Male
@@ -115,7 +115,7 @@
                <div class="col-md-6">
                   <!-- Horizontal Form -->
                   <div class="form-group">
-                     <label for="mobile" class="col-sm-3 control-label">Mobile No</label>
+                     <label for="mobile" class="col-sm-3 control-label">Mobile No <span class="text-danger">*</span></label>
                      <div class="col-sm-9">
                         <input type="number" name="mobile" id="mobile" class="form-control border border-dark mb-2" placeholder="Enter mobile no" minlength="10" maxlength="10">
                         @if($errors->has('mobile'))
@@ -124,7 +124,7 @@
                      </div>
                   </div>
                   <div class="form-group">
-                     <label for="session" class="col-sm-3 control-label">Session</label>
+                     <label for="session" class="col-sm-3 control-label">Session <span class="text-danger">*</span></label>
                      <div class="col-sm-9">
                         <select name="session" id="session" class="custom-select form-control form-control-rounded" required>
                            <option value="Morning">Morning</option>
@@ -136,7 +136,7 @@
                      </div>
                   </div>
                   <div class="form-group">
-                     <label for="mediclaim" class="col-sm-3 control-label">Mediclaim</label>
+                     <label for="mediclaim" class="col-sm-3 control-label">Mediclaim <span class="text-danger">*</span></label>
                      <div class="col-sm-9">
                         <select name="mediclaim" id="mediclaim" class="custom-select form-control form-control-rounded" required>
                            <option value="No">No</option>
@@ -148,7 +148,7 @@
                      </div>
                   </div>
                   <div class="form-group">
-                     <label for="arrival_time" class="col-sm-3 control-label">Arrival Time</label>
+                     <label for="arrival_time" class="col-sm-3 control-label">Arrival Time <span class="text-danger">*</span></label>
                      <div class="col-sm-9">
                         <input type="text" name="arrival_time" id="arrival_time" class="form-control border border-dark mb-2" placeholder="Enter arrival time" autocomplete="off" required>
                         @if($errors->has('arrival_time'))

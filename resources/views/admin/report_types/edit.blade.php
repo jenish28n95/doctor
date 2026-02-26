@@ -29,7 +29,7 @@
                @csrf
                <div class="box-body">
                   <div class="form-group">
-                     <label for="name" class="col-sm-2 control-label">Name</label>
+                     <label for="name" class="col-sm-2 control-label">Name <span class="text-danger">*</span></label>
                      <div class="col-sm-4">
                         <input type="text" class="form-control" name="name" id="name" value="{{$rtype->name}}" placeholder="Enter name" required>
                         @if($errors->has('name'))
